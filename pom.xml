@@ -20,18 +20,21 @@
     </properties>
 
     <dependencies>
+
         <!--springboot start-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-<!--        springboot end-->
+        <!--springboot end-->
+
         <!--mysql start-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <!--mysql end-->
+
         <!--druid start-->
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -39,6 +42,7 @@
             <version>1.1.23</version>
         </dependency>
         <!--druid end-->
+
         <!--springboot jsp start-->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
@@ -59,6 +63,7 @@
             <version>2.3.1</version>
         </dependency>
         <!--springboot jsp end-->
+
         <!--fastdfs start-->
         <dependency>
             <groupId>org.csource</groupId>
@@ -67,6 +72,7 @@
             <scope>compile</scope>
         </dependency>
         <!--fastdfs end-->
+
         <!--gson start-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -77,6 +83,7 @@
             <artifactId>jackson-core</artifactId>
         </dependency>
         <!--gson end-->
+
         <!--redis start-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -87,6 +94,7 @@
             <artifactId>jedis</artifactId>
         </dependency>
         <!--redis end-->
+
         <!--mybatis start-->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
