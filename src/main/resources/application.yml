@@ -1,0 +1,36 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /xcloud
+    encoding:
+      enabled: true
+      force: true
+      charset: utf-8
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://x.x.x.x:3306/xcloud?characterEncoding=utf-8
+    username: root
+    password: zhangfanfan306
+    type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    write:
+      host: x.x.x.x
+      port: 6379
+      password: zhangfanfan306
+      database: 0
+      timeout: 5000
+    read:
+      host: x.x.x.x
+      port: 6382
+      password: zhangfanfan306
+      database: 0
+      timeout: 5000
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 15MB
+      max-request-size: 15MB
+mybatis:
+  config-location: classpath:mybatis.xml

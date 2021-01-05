@@ -1,0 +1,206 @@
+
+.con {
+    width: 100%;
+    height: 400px;
+    margin: auto;
+}
+
+.head {
+    width: 100%;
+    height: 50px;
+    margin: 0px 0px 10px 0px;
+    background-color: rgba(0, 5, 20, 0.2);
+}
+
+.logo {
+    width: 50px;
+    height: 40px;
+    float: left;
+    margin-left: 10px;
+}
+
+.logo02 {
+    width: 100px;
+    height: 30px;
+    margin-top: 6px;
+    float: left;
+    margin-left: 10px;
+}
+
+.pic {
+    margin-top: 5px;
+}
+
+.nav {
+    width: 100px;
+    height: 50px;
+    margin-top: 10px;
+    margin-left: 10px;
+    float: left;
+    color: rgba(230, 230, 230, 0.9);
+}
+
+.nav02 {
+    width: 250px;
+    height: 50px;
+    margin-top: 8px;
+    margin-right: 10px;
+    float: right;
+    color: white;
+}
+
+.nav ul {
+}
+
+.nav li {
+    float: left;
+    padding: 5px 20px;
+}
+
+.nav li a {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold
+}
+
+.nav li a:hover {
+    font-size: 18px;
+    color: #900;
+    text-decoration: none;
+}
+
+.nav02 ul {
+}
+
+.nav02 li {
+    padding: 8px 10px;
+}
+
+.nav02 li a {
+    font-size: 18px;
+    color: rgba(230, 230, 230, 0.9);
+    font-weight: bold;
+}
+
+.nav02 li a:hover {
+    font-size: 18px;
+    color: #900;
+    text-decoration: none;
+}
+
+.user {
+    width: 140px;
+    height: 34px;
+    white-space: nowrap; /*强制span不换行*/
+    display: inline-block;
+}
+
+.login {
+    width: 90px;
+    height: 34px;
+    white-space: nowrap; /*强制span不换行*/
+    display: inline-block;
+    background-color: rgba(100, 255, 150, 0.6);
+}
+
+.regist {
+    width: 90px;
+    height: 34px;
+    white-space: nowrap; /*强制span不换行*/
+    display: inline-block;
+    float: right;
+    background-color: rgba(100, 89, 255, 0.6);
+}
+
+#path {
+    width: 100%;
+    height: 15px;
+    margin-top: 50px;
+    font-size: 13px;
+    /*position: relative;*/
+}
+
+#path01 {
+    float: left;
+    margin-left: 10px;
+    white-space: nowrap; /*强制span不换行*/
+}
+
+#path02 {
+    float: right;
+    margin-right: 10px;
+    white-space: nowrap; /*强制span不换行*/
+}
+
+.main01 {
+    width: 100%;
+    height: 420px;
+    position: relative;
+    margin-top: 5px;
+    top: 15px;
+}
+
+.main02 {
+    width: 100%;
+    height: 100px;
+    position: relative;
+    top: 15px;
+    margin-top: 10px;
+}
+
+.foot {
+    width: 100%;
+    height: min-content;
+    margin: auto;
+    position: absolute;
+    bottom: 0;
+    /* background-color: rgba(0, 0, 0, 0); */
+    color: black;
+    padding-bottom: 0px;
+    margin-top: 20px;
+}
+
+.foot a {
+    color: black;
+}
+
+.foot p {
+    line-height: 15px;
+}
+
+* {
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    PADDING-TOP: 0px;
+}
+
+BODY {
+    BACKGROUND: #fff;
+    FONT: 12px/20px simsun;
+    COLOR: #595959;
+    TEXT-ALIGN: center;
+}
+
+IMG {
+    BORDER-TOP-STYLE: none;
+    BORDER-RIGHT-STYLE: none;
+    BORDER-LEFT-STYLE: none;
+    BORDER-BOTTOM-STYLE: none
+}
+
+ul, li {
+    list-style: none;
+    list-style-type: none;
+}
+
+A {
+    COLOR: #257ec0;
+    TEXT-DECORATION: none
+}
+
+A:hover {
+    COLOR: #ff7202;
+    TEXT-DECORATION: underline
+}
