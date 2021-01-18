@@ -6,21 +6,18 @@
         <result column="user_id" jdbcType="INTEGER" property="userId"/>
         <result column="parent_id" jdbcType="INTEGER" property="parentId"/>
         <result column="folder" jdbcType="INTEGER" property="folder"/>
-        <result column="group_name" jdbcType="VARCHAR" property="groupName"/>
-        <result column="remote_file_path" jdbcType="VARCHAR" property="remoteFilePath"/>
+        <result column="random_file_name" jdbcType="VARCHAR" property="randomFileName"/>
         <result column="old_file_name" jdbcType="VARCHAR" property="oldFileName"/>
         <result column="file_size" jdbcType="BIGINT" property="fileSize"/>
         <result column="file_type" jdbcType="VARCHAR" property="fileType"/>
         <result column="remark" jdbcType="VARCHAR" property="remark"/>
-        <result column="download_count" jdbcType="INTEGER" property="downloadCount"/>
-        <result column="redis_cache_name" jdbcType="VARCHAR" property="redisCacheName"/>
         <result column="upload_time" jdbcType="BIGINT" property="uploadTime"/>
         <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
     </resultMap>
     <sql id="Base_Column_List">
         id
-        , user_id, parent_id, folder, group_name, remote_file_path, old_file_name, file_size,
-    file_type, remark, download_count, redis_cache_name, upload_time, update_time
+        , user_id, parent_id, folder, random_file_name, old_file_name, file_size,
+    file_type, remark, upload_time, update_time
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -35,14 +32,14 @@
     </delete>
     <insert id="insert" parameterType="cn.zf233.xcloud.entity.File">
         insert into t_file (id, user_id, parent_id,
-                            folder, group_name, remote_file_path,
+                            folder, random_file_name,
                             old_file_name, file_size, file_type,
-                            remark, download_count, redis_cache_name,
+                            remark,
                             upload_time, update_time)
         values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER},
-                #{folder,jdbcType=INTEGER}, #{groupName,jdbcType=VARCHAR}, #{remoteFilePath,jdbcType=VARCHAR},
+                #{folder,jdbcType=INTEGER}, #{randomFileName,jdbcType=VARCHAR},
                 #{oldFileName,jdbcType=VARCHAR}, #{fileSize,jdbcType=BIGINT}, #{fileType,jdbcType=VARCHAR},
-                #{remark,jdbcType=VARCHAR}, #{downloadCount,jdbcType=INTEGER}, #{redisCacheName,jdbcType=VARCHAR},
+                #{remark,jdbcType=VARCHAR},
                 #{uploadTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
     </insert>
     <select id="selectRootNodeOfUserByPrimaryKey" resultMap="BaseResultMap">
@@ -98,11 +95,8 @@
             <if test="folder != null">
                 folder = #{folder,jdbcType=INTEGER},
             </if>
-            <if test="groupName != null">
-                group_name = #{groupName,jdbcType=VARCHAR},
-            </if>
-            <if test="remoteFilePath != null">
-                remote_file_path = #{remoteFilePath,jdbcType=VARCHAR},
+            <if test="randomFileName != null">
+                random_file_name = #{randomFileName},
             </if>
             <if test="oldFileName != null">
                 old_file_name = #{oldFileName,jdbcType=VARCHAR},
@@ -115,12 +109,6 @@
             </if>
             <if test="remark != null">
                 remark = #{remark,jdbcType=VARCHAR},
-            </if>
-            <if test="downloadCount != null">
-                download_count = #{downloadCount,jdbcType=INTEGER},
-            </if>
-            <if test="redisCacheName != null">
-                redis_cache_name = #{redisCacheName,jdbcType=VARCHAR},
             </if>
             <if test="uploadTime != null">
                 upload_time = #{uploadTime,jdbcType=BIGINT},

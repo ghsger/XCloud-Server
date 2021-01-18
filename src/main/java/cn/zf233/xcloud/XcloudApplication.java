@@ -23,6 +23,4 @@ public class XcloudApplication extends SpringBootServletInitializer {
         return builder.sources(XcloudApplication.class);
     }
 
-
-
 }

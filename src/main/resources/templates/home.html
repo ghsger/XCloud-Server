@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>XCloud</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
+    <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
+    <base href="https://www.zf233.cn/xcloud/">
+    <!--<base href="http://localhost:8080/xcloud/">-->
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
+    <script type="text/javascript" src="https://www.zf233.cn/static/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://www.zf233.cn/static/js/home.js"></script>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to top right, rgba(224, 73, 13, 0.4), rgba(4, 149, 245, 0.5));
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        #upload_div {
+            text-align: center;
+            background-color: rgb(223, 224, 225);
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 5px 10px 5px 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 24px;
+        }
+
+        table tbody {
+            display: block;
+            height: 320px;
+            overflow-y: scroll;
+        }
+
+        table thead,
+        tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        table tbody tr:hover {
+            background-color: rgb(223, 224, 225);
+        }
+
+        table thead {
+            width: calc(100% - 1em)
+        }
+
+        table thead th {
+            background: #ccc;
+        }
+
+        input {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<div class="head">
+    <a href="user/browse/home">
+        <div class="logo">
+            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
+        </div>
+        <div class="logo02">
+            <img class='pic' src='https://www.zf233.cn/static//img/logo2.png' style="height: 30px;">
+        </div>
+    </a>
+    <div class="nav02">
+        <ul>
+            <div class="user">
+                <li>
+                    欢迎&nbsp;
+                    <a href="user/browse/jump?jump=user_detail" style="font-size: 15px">
+                        <span th:text="${session.currentUser.username}"></span>
+                    </a>&nbsp;
+                    Lv<span style="color: #ff7202" th:text="${session.currentUser.level}"></span>
+                </li>
+            </div>
+            <div class="regist">
+                <li><a href="user/browse/logout">注销</a></li>
+            </div>
+        </ul>
+    </div>
+</div>
+
+<div id="path">
+    <span id="path01">
+        <a href="user/browse/home?parentid=-1">root/</a>
+        <span th:each="absolute:${session.absolutePath}">
+            <a th:href="'user/browse/home?parentid=' + ${absolute.parentid}"><span
+                    th:text="${absolute.folderName} + ' ' + '/'"></span></a>
+        </span>
+    </span>
+    <span id="path02">
+        <form action="user/browse/home" method="post" style="height: 15px">
+            <input type="text" name="matchCode" id="fuzzySelect" placeholder="检索关键字"
+                   style="background: transparent;border:1px solid rgba(0, 5, 20, 0.2)">
+            <input type="submit" id="fuzzySelect_button" style="display: none">
+        </form>
+    </span>
+</div>
+<div class="main01" th:if="${!session.fileVos.isEmpty()}">
+    <hr>
+    <br>
+    <table align="center" style="min-width:900px">
+        <thead style="font-size: 18px; font-style: italic">
+        <tr>
+            <td align="center">
+                序号
+            </td>
+            <td align="center">
+                名称<a href="user/browse/home?sortFlag=0&sortType=0">▲</a><a
+                    href="user/browse/home?sortFlag=0&sortType=1">▼</a>
+            </td>
+            <td align="center">
+                类型<a href="user/browse/home?sortFlag=1&sortType=0">▲</a><a
+                    href="user/browse/home?sortFlag=1&sortType=1">▼</a>
+            </td>
+            <td align="center">
+                大小<a href="user/browse/home?sortFlag=2&sortType=0">▲</a><a
+                    href="user/browse/home?sortFlag=2&sortType=1">▼</a>
+            </td>
+            <td align="center">
+                上传时间<a href="user/browse/home?sortFlag=3&sortType=0">▲</a><a
+                    href="user/browse/home?sortFlag=3&sortType=1">▼</a>
+            </td>
+            <td align="center">
+                备注
+            </td>
+            <td align="center">
+
+            </td>
+        </tr>
+        </thead>
+        <tbody style="font-size: 15px">
+        <tr th:each="file,fileStat:${session.fileVos}" th:class="${file.folder eq 0 ? 'fileItem' : 'folderItem'}">
+            <td th:text="${fileStat.index + 1}" style="text-align: center;"></td>
+            <td th:text="${file.fileName}"
+                style="text-align: left; white-space: nowrap;text-overflow: ellipsis;overflow: hidden;"></td>
+            <td th:if="${file.fileType == null}" style="text-align: center;">
+                <span>文件夹</span>
+            </td>
+            <td th:if="${file.fileType != null}" style="text-align: center;">
+                <span th:text="${file.fileType}"></span>
+            </td>
+            <td th:if="${file.fileSize == null}" style="text-align: center;">
+                <span></span>
+            </td>
+            <td th:if="${file.fileSize != null}" style="text-align: center;">
+                <span th:text="${file.fileSize}"></span>
+            </td>
+            <td th:text="${file.uploadTime}" style="text-align: center;"></td>
+            <td th:if="${file.remark == null}" style="text-align: center;">
+                <span></span>
+            </td>
+            <td th:if="${file.remark != null}" style="text-align: center;">
+                <span th:text="${file.remark}"></span>
+            </td>
+            <td align="center" th:if="${file.folder eq 0}">
+                <input type="checkbox" class="fileCheckBox" th:value="${file.id}" name="fileid">&nbsp;
+                <input type="hidden" class="fileCheckBoxURL" th:value="${file.downloadURL}">
+                <a href="javascript:void(null);" class="share_A" th:id="${file.id}">分享</a>
+            </td>
+            <td align="center" th:if="${file.folder eq 1}">
+                <input type="checkbox" class="folderCheckBox" th:value="${file.id}" name="fileid">&nbsp;
+                <a th:href="'user/browse/home?parentid=' + ${file.id}">打开</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <span style="float:left;position:absolute;bottom:20px;right:30px;text-align:right;font-size: 14px;">
+        <a id="selectAll" href="javascript:void(null);">全选</a>
+        <a id="deleteSelectAll" href="javascript:void(null);">删除</a>
+        <a id="downloadSelectAll" href="javascript:void(null);">下载</a>
+    </span>
+    <div id="outerdiv"
+         style="position:fixed;top:0;left:0;background:rgba(0,0,0,0.7);z-index:2;width:100%;height:100%;display:none;">
+        <div id="innerdiv" style="position:absolute;">
+            <img id="bigimg" style="border:5px solid #fff;" src=""/></br>
+            <span style="font-size: 20px; color: white;">扫一扫，获取分享文件🤔</span>
+        </div>
+    </div>
+</div>
+<div class="main01" th:if="${session.fileVos.isEmpty()}">
+    <hr>
+    <br>
+    <table align="center" style="min-width:900px">
+        <h2>空空如也，快去上传吧</h2>
+    </table>
+</div>
+<hr>
+<div class="main02">
+    <div id="upload_div">
+        <form action="file/browse/upload" method="post" enctype="multipart/form-data">
+            <span style="font-size: 12px">限制上传文件大小(200MB)</span>
+            <input name="myFile" id="select_file" type="file" multiple="multiple"
+                   style="width: 200px; background: transparent; border: none;"/>
+            <input type="text" name="remark" id="remark"
+                   style="width: 200px; background: transparent; border:1px solid rgba(0, 5, 20, 0.2)"
+                   placeholder="备注(长度20,超出截断)"/>
+            <input type="button" id="delete_remark" value="清空"
+                   style="color: red; background: transparent; border: none;"/>
+            <input type="hidden" name="parentid" th:value="${session.parentid}">
+            <input type="submit" value="确认上传" id="file_submit"
+                   style="background: transparent; border: none;">
+        </form>
+        <form action="file/browse/createfolder" method="post">
+            <span style="font-size: 12px">新建文件夹</span>
+            <input type="hidden" name="parentid" th:value="${session.parentid}">
+            <input id="folderName" type="text" placeholder="文件夹名" name="foldername"
+                   style="background: transparent;border:1px solid rgba(0, 5, 20, 0.2)"/>
+            <input id="createFolder" type="submit" value="创建"
+                   style="background: transparent; border: none;">
+        </form>
+        <span style="font-size: 15px;">
+                <strong th:text="${session.currentUser.username}"></strong>&nbsp;
+                <strong>容量</strong>
+                <progress th:value="${session.currentUser.useCapacity}"
+                          th:max="${session.currentUser.level * 10}"></progress>
+                <span id="useCapacity" style="font-size: 10px" th:text="${session.currentUser.useCapacity}"></span>
+                <span style="font-size: 10px">/</span>
+                <span id="maxCapacity" style="font-size: 10px" th:text="${session.currentUser.level * 10}"></span>
+            </span>
+    </div>
+</div>
+<br>
+<div class="foot">
+    <span style="color: black">
+        <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
+        <p>zf233.cn&nbsp;All Rights Reserved·</p>
+        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-2</a></p>
+    </span>
+</div>
+</body>
+</html>

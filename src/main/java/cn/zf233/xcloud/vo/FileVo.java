@@ -12,12 +12,12 @@ public class FileVo {
     private String fileSize;
     private String uploadTime;
     private String remark;
-    private Integer downloadCount;
+    private String downloadURL;
 
     public FileVo() {
     }
 
-    public FileVo(Integer id, Integer parentId, Integer folder, String fileName, String fileType, String fileSize, String uploadTime, String remark, Integer downloadCount) {
+    public FileVo(Integer id, Integer parentId, Integer folder, String fileName, String fileType, String fileSize, String uploadTime, String remark, String downloadURL) {
         this.id = id;
         this.parentId = parentId;
         this.folder = folder;
@@ -26,7 +26,7 @@ public class FileVo {
         this.fileSize = fileSize;
         this.uploadTime = uploadTime;
         this.remark = remark;
-        this.downloadCount = downloadCount;
+        this.downloadURL = downloadURL;
     }
 
     public Integer getId() {
@@ -93,12 +93,12 @@ public class FileVo {
         this.remark = remark;
     }
 
-    public Integer getDownloadCount() {
-        return downloadCount;
+    public String getDownloadURL() {
+        return downloadURL;
     }
 
-    public void setDownloadCount(Integer downloadCount) {
-        this.downloadCount = downloadCount;
+    public void setDownloadURL(String downloadURL) {
+        this.downloadURL = downloadURL;
     }
 }
 

@@ -7,17 +7,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Created by zf233 on 2020/11/4
+ * Created by zf233 on 2021/1/17
  */
-public class PermissionsCheck implements HandlerInterceptor {
+public class PermissionCheckAdmin implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Object user = request.getSession().getAttribute(Const.CURRENT_USER);
+        Object user = request.getSession().getAttribute(Const.CURRENT_ADMIN_USER);
         if (user != null) {
             return true;
         }
-        request.getRequestDispatcher("/user/browse/jump?jump=index").forward(request, response);
+        request.getRequestDispatcher("/admin").forward(request, response);
         return false;
     }
 }

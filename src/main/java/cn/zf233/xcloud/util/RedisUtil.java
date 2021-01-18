@@ -4,145 +4,154 @@ import cn.zf233.xcloud.entity.User;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zf233 on 2020/11/27
  */
+@Component
 public class RedisUtil {
 
     @Resource
-    private RedisTemplate<String, byte[]> writeRedis;
+    private RedisTemplate<String, byte[]> redisTemplate;
 
-    @Resource
-    private RedisTemplate<String, byte[]> readRedis;
-
-    private static final String FILE_KEY_PREFIX = "zf233_file.";
-    private static final String USER_USERNAME_PREFIX = "zf233_login.";
-    private static final String USER_USE_CAPACITY_PREFIX = "zf233_user_use_capacity.";
+    private static final String USER_KEY_PREFIX_ID = "zf233_user.id.";
+    private static final String USER_KEY_PREFIX_USERNAME = "zf233_user.username.";
+    private static final String USER_KEY_PREFIX_EMAIL = "zf233_user.email.";
+    private static final String USER_KEY_PREFIX_OPENID = "zf233_user.openid.";
+    private static final String USER_UUID_KEY_PREFIX = "zf233_user_regist_uuid.";
+    private static final String USER_USE_CAPACITY_PREFIX = "zf233_user_capacity.";
     private static final String VERSION_PERMISSION = "zf233_version_permission";
 
-    public String saveFile(byte[] fileBytes) {
-        ValueOperations<String, byte[]> opsWrite = writeRedis.opsForValue();
-        StringBuilder filename = new StringBuilder(FILE_KEY_PREFIX).append(System.currentTimeMillis());
-        opsWrite.set(filename.toString(), fileBytes);
-        return filename.toString();
-    }
-
-    public byte[] getFile(String redisCacheName) {
-        ValueOperations<String, byte[]> opsRead = readRedis.opsForValue();
-        byte[] bytes = opsRead.get(redisCacheName);
+    public User getUser(User user) {
+        ValueOperations<String, byte[]> ops = redisTemplate.opsForValue();
+        String keyOfId = USER_KEY_PREFIX_ID + user.getId();
+        byte[] bytes = ops.get(keyOfId);
         if (bytes == null) {
-            ValueOperations<String, byte[]> opsWrite = writeRedis.opsForValue();
-            return opsWrite.get(redisCacheName);
+            String keyOfUsername = USER_KEY_PREFIX_USERNAME + user.getUsername();
+            bytes = ops.get(keyOfUsername);
         }
-        return bytes;
-    }
-
-    public void removeFile(String redisCacheName) {
-        writeRedis.delete(redisCacheName);
-    }
-
-
-    public User readUser(User user) {
-        String key = USER_USERNAME_PREFIX + user.getId();
-        ValueOperations<String, byte[]> opsForValue = readRedis.opsForValue();
-        byte[] bytes = opsForValue.get(key);
+        if (bytes == null) {
+            if (StringUtils.isNotBlank(user.getEmail())) {
+                String keyOfEmail = USER_KEY_PREFIX_EMAIL + user.getEmail();
+                bytes = ops.get(keyOfEmail);
+            }
+        }
+        if (bytes == null) {
+            if (StringUtils.isNotBlank(user.getOpenId())) {
+                String keyOfOpenId = USER_KEY_PREFIX_OPENID + user.getOpenId();
+                bytes = ops.get(keyOfOpenId);
+            }
+        }
         if (bytes != null) {
-            String userJson = new String(bytes, StandardCharsets.UTF_8);
-            User userOfRedis = JsonUtil.toObject(userJson, User.class);
-            if (userOfRedis == null) {
-                return null;
-            }
-            if (user.getUsername().equals(userOfRedis.getUsername()) && user.getPassword().equals(userOfRedis.getPassword())) {
-                return userOfRedis;
-            }
-            return null;
+            return JsonUtil.toObject(new String(bytes, StandardCharsets.UTF_8), User.class);
         }
         return null;
     }
 
     public void saveUser(User user) {
-        String key = USER_USERNAME_PREFIX + user.getId();
-        writeRedis.delete(key);
-        ValueOperations<String, byte[]> opsForValue = writeRedis.opsForValue();
-        String userJson = JsonUtil.toJson(user);
-        if (StringUtils.isNotBlank(userJson)) {
-            opsForValue.set(key, userJson.getBytes(StandardCharsets.UTF_8));
+        ValueOperations<String, byte[]> ops = redisTemplate.opsForValue();
+
+        String keyOfId = USER_KEY_PREFIX_ID + user.getId();
+        String keyOfUsername = USER_KEY_PREFIX_USERNAME + user.getUsername();
+        String keyOfEmail = USER_KEY_PREFIX_EMAIL + user.getEmail();
+        String keyOfOpenId = USER_KEY_PREFIX_OPENID + user.getOpenId();
+        redisTemplate.delete(keyOfId);
+        redisTemplate.delete(keyOfUsername);
+        redisTemplate.delete(keyOfEmail);
+        redisTemplate.delete(keyOfOpenId);
+
+        String userOfJson = JsonUtil.toJson(user);
+        if (StringUtils.isNotBlank(userOfJson)) {
+            ops.set(keyOfId, userOfJson.getBytes(StandardCharsets.UTF_8));
+            ops.set(keyOfUsername, userOfJson.getBytes(StandardCharsets.UTF_8));
+            if (StringUtils.isNotBlank(user.getEmail())) {
+                ops.set(keyOfEmail, userOfJson.getBytes(StandardCharsets.UTF_8));
+            }
+            if (StringUtils.isNotBlank(user.getOpenId())) {
+                ops.set(keyOfOpenId, userOfJson.getBytes(StandardCharsets.UTF_8));
+            }
         }
     }
 
-    public Integer readUserUseCapacity(User user) {
-        ValueOperations<String, byte[]> opsForValue = readRedis.opsForValue();
-        String key = USER_USE_CAPACITY_PREFIX + user.getId();
-        byte[] bytes = opsForValue.get(key);
+    public Integer getUserUseCapacity(Integer userId) {
+        ValueOperations<String, byte[]> ops = redisTemplate.opsForValue();
+        String key = USER_USE_CAPACITY_PREFIX + userId;
+        byte[] bytes = ops.get(key);
         if (bytes != null) {
-            String useCapacityString = new String(bytes, StandardCharsets.UTF_8);
-            if (StringUtils.isNotBlank(useCapacityString)) {
-                return Integer.valueOf(useCapacityString);
-            }
+            return Integer.valueOf(new String(bytes, StandardCharsets.UTF_8));
         }
         return -1;
     }
 
-    public void updateAddUserUseCapacity(User user) {
-        ValueOperations<String, byte[]> opsForValue = writeRedis.opsForValue();
-        String key = USER_USE_CAPACITY_PREFIX + user.getId();
-        byte[] bytes = opsForValue.get(key);
-        if (bytes != null) {
-            String useCapacityString = new String(bytes, StandardCharsets.UTF_8);
-            if (StringUtils.isNotBlank(useCapacityString)) {
-                int useCapacity = Integer.parseInt(useCapacityString);
-                this.saveUserUseCapacity(user, useCapacity + 1);
-            }
+    public void saveUserUseCapacity(Integer userId, Integer useCapacity) {
+        ValueOperations<String, byte[]> ops = redisTemplate.opsForValue();
+        String key = USER_USE_CAPACITY_PREFIX + userId;
+        redisTemplate.delete(key);
+        ops.set(key, useCapacity.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String getVersionPermission() {
+        ValueOperations<String, byte[]> ops = redisTemplate.opsForValue();
+        byte[] bytes = ops.get(VERSION_PERMISSION);
+        if (bytes == null) {
+            return null;
         }
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public void updateReduceUserUseCapacity(User user) {
-        ValueOperations<String, byte[]> opsForValue = writeRedis.opsForValue();
-        String key = USER_USE_CAPACITY_PREFIX + user.getId();
-        byte[] bytes = opsForValue.get(key);
-        if (bytes != null) {
-            String useCapacityString = new String(bytes, StandardCharsets.UTF_8);
-            if (StringUtils.isNotBlank(useCapacityString)) {
-                int useCapacity = Integer.parseInt(useCapacityString);
-                if (useCapacity > 0) {
-                    this.saveUserUseCapacity(user, useCapacity - 1);
-                }
-            }
-        }
+    public void saveVersionPermission(String versionPermissionCode) {
+        ValueOperations<String, byte[]> ops = redisTemplate.opsForValue();
+        redisTemplate.delete(VERSION_PERMISSION);
+        ops.set(VERSION_PERMISSION, versionPermissionCode.getBytes(StandardCharsets.UTF_8));
     }
 
-    public void saveUserUseCapacity(User user, Integer useCapacity) {
-        ValueOperations<String, byte[]> opsForValue = writeRedis.opsForValue();
-        String key = USER_USE_CAPACITY_PREFIX + user.getId();
-        writeRedis.delete(key);
-        opsForValue.set(key, useCapacity.toString().getBytes(StandardCharsets.UTF_8));
+    public void removeUserServerCache(User user) {
+
+        String keyOfUserUseCapacity = USER_USE_CAPACITY_PREFIX + user.getId();
+        redisTemplate.delete(keyOfUserUseCapacity);
+
+        String keyOfId = USER_KEY_PREFIX_ID + user.getId();
+        String keyOfUsername = USER_KEY_PREFIX_USERNAME + user.getUsername();
+        String keyOfEmail = USER_KEY_PREFIX_EMAIL + user.getEmail();
+        String keyOfOpenId = USER_KEY_PREFIX_OPENID + user.getOpenId();
+        redisTemplate.delete(keyOfId);
+        redisTemplate.delete(keyOfUsername);
+        redisTemplate.delete(keyOfEmail);
+        redisTemplate.delete(keyOfOpenId);
     }
 
-    public void clearAllUserLoginDetail(List<User> users) {
-        writeRedis.delete(VERSION_PERMISSION);
-        for (User user : users) {
-            writeRedis.delete(USER_USERNAME_PREFIX + user.getId());
-            writeRedis.delete(USER_USE_CAPACITY_PREFIX + user.getId());
-        }
+    public void removeVersionPermission() {
+        redisTemplate.delete(VERSION_PERMISSION);
     }
 
-    public String readVersionPermission() {
-        ValueOperations<String, byte[]> operations = readRedis.opsForValue();
-        byte[] bytes = operations.get(VERSION_PERMISSION);
+    public void removeRegistUserUUID(Integer userId) {
+        String UUIDKey = USER_UUID_KEY_PREFIX + userId;
+        redisTemplate.delete(UUIDKey);
+    }
+
+    public String getRegistUserUUID(Integer userId) {
+        String UUIDKey = USER_UUID_KEY_PREFIX + userId;
+        ValueOperations<String, byte[]> operations = redisTemplate.opsForValue();
+        byte[] bytes = operations.get(UUIDKey);
         if (bytes != null) {
             return new String(bytes, StandardCharsets.UTF_8);
         }
         return null;
     }
 
-    public void saveVersionPermission(String versionPermissionCode) {
-        ValueOperations<String, byte[]> operations = writeRedis.opsForValue();
-        writeRedis.delete(VERSION_PERMISSION);
-        operations.set(VERSION_PERMISSION, versionPermissionCode.getBytes(StandardCharsets.UTF_8));
+    public void setRegistUserUUID(Integer userId, String UUID) {
+        String UUIDKey = USER_UUID_KEY_PREFIX + userId;
+        ValueOperations<String, byte[]> operations = redisTemplate.opsForValue();
+        operations.set(UUIDKey, UUID.getBytes(StandardCharsets.UTF_8), 180, TimeUnit.SECONDS);
+    }
+
+    public Long getRegistUserUUIDTimeOut(Integer userId) {
+        String UUIDKey = USER_UUID_KEY_PREFIX + userId;
+        return redisTemplate.getExpire(UUIDKey);
     }
 }

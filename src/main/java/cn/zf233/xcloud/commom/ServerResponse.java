@@ -89,11 +89,13 @@ public class ServerResponse<T> implements Serializable {
         return new ServerResponse<>(ResponseCodeENUM.SUCCESS.getCode(), msg, data);
     }
 
-
     public static <T> ServerResponse<T> createByError() {
         return new ServerResponse<>(ResponseCodeENUM.ERROR.getCode(), ResponseCodeENUM.ERROR.getDesc());
     }
 
+    public static <T> ServerResponse<T> createByError(String errorMessage, T data) {
+        return new ServerResponse<>(ResponseCodeENUM.ERROR.getCode(), errorMessage, data);
+    }
 
     public static <T> ServerResponse<T> createByErrorMessage(String errorMessage) {
         return new ServerResponse<>(ResponseCodeENUM.ERROR.getCode(), errorMessage);
@@ -113,5 +115,9 @@ public class ServerResponse<T> implements Serializable {
 
     public static <T> ServerResponse<T> createByErrorCodeMessage(int errorCode, String errorMessage) {
         return new ServerResponse<>(errorCode, errorMessage);
+    }
+
+    public static <T> ServerResponse<T> createByErrorCodeMessage(int errorCode, String errorMessage, T data) {
+        return new ServerResponse<>(errorCode, errorMessage, data);
     }
 }

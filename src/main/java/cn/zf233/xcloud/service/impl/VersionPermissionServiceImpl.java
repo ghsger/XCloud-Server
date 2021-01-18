@@ -21,8 +21,9 @@ public class VersionPermissionServiceImpl implements VersionPermissionService {
     @Resource
     private RedisUtil redisUtil;
 
+    // 获取App版本号
     public VersionPermission getVersionPermission() {
-        String versionPermissionCode = redisUtil.readVersionPermission();
+        String versionPermissionCode = redisUtil.getVersionPermission();
         if (StringUtils.isNotBlank(versionPermissionCode)) {
             VersionPermission versionPermission = new VersionPermission();
             versionPermission.setId(1);
@@ -34,6 +35,7 @@ public class VersionPermissionServiceImpl implements VersionPermissionService {
         return versionPermission;
     }
 
+    // 测试App版本号是否一致
     @Override
     public Boolean testVersionCodeOfUserRequest(VersionPermission serviceVersionPermission) {
         VersionPermission versionPermission = getVersionPermission();
@@ -48,6 +50,7 @@ public class VersionPermissionServiceImpl implements VersionPermissionService {
         return !appVersionCode.equals(serviceCode);
     }
 
+    // 测试App版本号是否一致
     @Override
     public Boolean testVersionCodeOfFileRequest(String appVersionCode) {
         VersionPermission serviceVersionPermission = getVersionPermission();

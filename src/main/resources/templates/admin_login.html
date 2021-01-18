@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin-Login</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
+    <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
+    <base href="https://www.zf233.cn/xcloud/">
+    <!--<base href="http://localhost:8080/xcloud/">-->
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
+    <script type="text/javascript" src="https://www.zf233.cn/static/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#sub").click(function () {
+                var username = $("#username").val().trim();
+                var password = $("#password").val().trim();
+                if (username == "") {
+                    alert("账号不可为空");
+                    return false;
+                }
+                if (password == "") {
+                    alert("密码不可为空");
+                    return false;
+                }
+                if (username.length < 5) {
+                    alert("账号格式有误");
+                    return false;
+                }
+                if (password.length < 5) {
+                    alert("密码格式有误");
+                    return false;
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+<div class="head">
+    <a href="user/browse/home">
+        <div class="logo">
+            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
+        </div>
+        <div class="logo02">
+            <img class='pic' src='https://www.zf233.cn/static//img/logo2.png' style="height: 30px;">
+        </div>
+    </a>
+</div>
+<form action="admin/login" class="box" method="post">
+    <h1>admin login</h1>
+    <input type="text" name="username" placeholder="account" id="username" onblur="formValid.checkUserName()"
+           onclick="formClick.checkUserName()"/><span class="imsg" id="userInfo">请输入账号</span>
+    <input type="password" placeholder="password" name="password" id="password" onblur="formValid.checkPassword()"
+           onclick="formClick.checkPassword()"/><span class="imsg" id="passwordInfo">请输入密码</span>
+    <input type="submit" value="login" id="sub">
+</form>
+<div id="foot">
+    <span style="color: black">
+        <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
+        <p>zf233.cn&nbsp;All Rights Reserved·</p>
+        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-2</a></p>
+    </span>
+</div>
+<script text="text/javascript">
+    var username = document.getElementById('username');
+    var password = document.getElementById('password');
+
+    var userInfo = document.getElementById('userInfo');
+    var passwordInfo = document.getElementById('passwordInfo');
+
+    var formValid = {
+        checkUserName: function () {
+            if (username.value.length == 0) {
+                userInfo.innerHTML = "账号不能为空";
+                userInfo.style.color = "red";
+                return false;
+            }
+        },
+        checkPassword: function () {
+            if (password.value.length == 0) {
+                passwordInfo.innerHTML = "密码不能为空";
+                passwordInfo.style.color = "red";
+                return false;
+            }
+        }
+    };
+    var formClick = {
+        checkUserName: function () {
+            userInfo.innerHTML = "请输入账号";
+            userInfo.style.color = "";
+            return false;
+        },
+        checkPassword: function () {
+            passwordInfo.innerHTML = "请输入密码";
+            passwordInfo.style.color = "";
+            return false;
+        }
+    }
+</script>
+</body>
+</html>

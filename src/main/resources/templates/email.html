@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Email</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
+    <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
+    <base href="https://www.zf233.cn/xcloud/">
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
+    <style>
+        body {
+            width: 100%;
+            height: 50%;
+            background-image: linear-gradient(to top right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 1));
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+            font-family: "微软雅黑";
+        }
+    </style>
+</head>
+<body>
+<div class="head">
+    <a href="user/browse/home">
+        <div class="logo">
+            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
+        </div>
+        <div class="logo02">
+            <img class='pic' src='https://www.zf233.cn/static/img/logo2.png' style="height: 30px;">
+        </div>
+    </a>
+</div>
+<span style="padding: 0px 15px; float: left; text-align: left;">
+    </br></br>
+    <h2 th:text="${title}" style="font-weight: bold"></h2>
+    </br>
+    <h3>
+        <font>尊敬的</font>
+        <font th:text="${nickname}" style="color: rgb(100,149,237);"></font>
+    </h3>
+    </br>
+    <a th:href="${url}"><h3 th:text="${content}"></h3></a>
+    </br></br></br></br></br></br>
+    <h2 style="line-height: 40px;">XCloud</h2>
+<hr>
+<h3 style="line-height: 30px;">此为系统邮件请勿回复</h3>
+<h3>
+    Copyright&nbsp;&copy;&nbsp;XCloud&nbsp;2021&nbsp;All&nbsp;Right&nbsp;Reserved&nbsp;
+</h3>
+</span>
+</body>
+</html>

@@ -14,9 +14,9 @@
         </commentGenerator>
         <!-- 配置数据库连接信息 -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://182.92.233.100:3306/xcloud?characterEncoding=utf-8"
+                        connectionURL="jdbc:mysql://0.0.0.0:3306/xcloud?characterEncoding=utf-8"
                         userId="root"
-                        password="zhangfanfan306">
+                        password="">
         </jdbcConnection>
         <!-- 生成 model 类，targetPackage 指定 model 类的包名， targetProject 指定
         生成的 model 放在 eclipse 的哪个工程下面-->

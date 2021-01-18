@@ -1,0 +1,44 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /xcloud
+    encoding:
+      enabled: true
+      force: true
+      charset: utf-8
+
+spring:
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://0.0.0.0:3306/xcloud?characterEncoding=utf-8
+    username: root
+    password:
+    type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    host: 0.0.0.0
+    port: 6379
+    password:
+    database: 0
+    timeout: 5000
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 256MB
+      max-request-size: 256MB
+  mail:
+    default-encoding: utf-8
+    host: smtp.qq.com
+    username:
+    password:
+mybatis:
+  config-location: classpath:mybatis.xml
+alibaba:
+  oss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    accessKeyId:
+    accessKeySecret:
+    bucketName:

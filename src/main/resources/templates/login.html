@@ -1,25 +1,23 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: 
-  Date: 2020/6/21
-  Time: 10:37 上午
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>XCloud-登陆</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Login</title>
+    <meta charset="UTF-8">
     <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
     <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
-    <%@ include file="../common/head.jsp" %>
+    <base href="https://www.zf233.cn/xcloud/">
+    <!--<base href="http://localhost:8080/xcloud/">-->
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
+    <script type="text/javascript" src="https://www.zf233.cn/static/js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript">
         $(function () {
             $("#sub").click(function () {
                 var username = $("#username").val().trim();
                 var password = $("#password").val().trim();
                 if (username == "") {
-                    alert("用户名不可为空");
+                    alert("账号不可为空");
                     return false;
                 }
                 if (password == "") {
@@ -27,7 +25,7 @@
                     return false;
                 }
                 if (username.length < 5) {
-                    alert("用户名格式有误");
+                    alert("账号格式有误");
                     return false;
                 }
                 if (password.length < 5) {
@@ -40,26 +38,31 @@
 </head>
 <body>
 <div class="head">
-    <a href="user/browse/index">
+    <a href="user/browse/home">
         <div class="logo">
-            <img class='pic' src='/static/img/logo.png' style="height: 40px;">
+            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
         </div>
         <div class="logo02">
-            <img class='pic' src='/static/img/logo2.png' style="height: 30px;">
+            <img class='pic' src='https://www.zf233.cn/static//img/logo2.png' style="height: 30px;">
         </div>
     </a>
 </div>
 <form action="user/browse/login" class="box" method="post">
     <h1>login</h1>
-    <input type="text" name="username" placeholder="username" id="username" onblur="formValid.checkUserName()" onclick="formClick.checkUserName()"/><span class="imsg" id="userInfo">请输入用户名</span>
-    <input type="password" placeholder="password" name="password" id="password" onblur="formValid.checkPassword()" onclick="formClick.checkPassword()"/><span class="imsg" id="passwordInfo">请输入密码</span>
+    <input type="text" name="username" placeholder="account" id="username" onblur="formValid.checkUserName()"
+           onclick="formClick.checkUserName()"/><span class="imsg" id="userInfo">请输入账号</span>
+    <input type="password" placeholder="password" name="password" id="password" onblur="formValid.checkPassword()"
+           onclick="formClick.checkPassword()"/><span class="imsg" id="passwordInfo">请输入密码</span>
     <input type="submit" value="login" id="sub">
+    <a href="account/qq/login">
+        <img src="https://www.zf233.cn/static/img/qq_login.png" style="height: 20px;">
+    </a>
 </form>
 <div id="foot">
     <span style="color: black">
-        <p>V4.5.5&nbsp;Copyright &copy;&nbsp;2021&nbsp;XCloud.</p>
+        <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
         <p>zf233.cn&nbsp;All Rights Reserved·</p>
-        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号</a></p>
+        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-2</a></p>
     </span>
 </div>
 <script text="text/javascript">
@@ -72,7 +75,7 @@
     var formValid = {
         checkUserName: function () {
             if (username.value.length == 0) {
-                userInfo.innerHTML = "用户名不能为空";
+                userInfo.innerHTML = "账号不能为空";
                 userInfo.style.color = "red";
                 return false;
             }
@@ -87,7 +90,7 @@
     };
     var formClick = {
         checkUserName: function () {
-            userInfo.innerHTML = "请输入用户名";
+            userInfo.innerHTML = "请输入账号";
             userInfo.style.color = "";
             return false;
         },

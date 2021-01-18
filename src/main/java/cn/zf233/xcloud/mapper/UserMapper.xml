@@ -3,6 +3,8 @@
 <mapper namespace="cn.zf233.xcloud.mapper.UserMapper">
     <resultMap id="BaseResultMap" type="cn.zf233.xcloud.entity.User">
         <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="open_id" jdbcType="VARCHAR" property="openId"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
@@ -15,7 +17,7 @@
         <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
+        id, open_id, email
         , username, nickname, password, question, answer, role, level, growth_value, create_time,
     update_time
     </sql>
@@ -36,23 +38,41 @@
         from t_user
         where username = #{username}
     </select>
+    <select id="selectUserByEmail" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user
+        where email = #{email}
+    </select>
+    <select id="selectUserByOpenId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user
+        where open_id = #{openId}
+    </select>
     <select id="selectUserByUsernameAndPassword" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from t_user
         where username = #{username} and password = #{password}
     </select>
+    <select id="selectUserByEmailAndPassword" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user
+        where email = #{email} and password = #{password}
+    </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
         from t_user
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="cn.zf233.xcloud.entity.User">
-        insert into t_user (id, username, nickname,
+    <insert id="insert" parameterType="cn.zf233.xcloud.entity.User" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user (id, open_id, email, username, nickname,
                             password, question, answer,
                             role, level, growth_value,
                             create_time, update_time)
-        values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{openId,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR}, #{question,jdbcType=VARCHAR}, #{answer,jdbcType=VARCHAR},
                 #{role,jdbcType=INTEGER}, #{level,jdbcType=INTEGER}, #{growthValue,jdbcType=INTEGER},
                 #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
@@ -60,6 +80,12 @@
     <update id="updateByPrimaryKeySelective" parameterType="cn.zf233.xcloud.entity.User">
         update t_user
         <set>
+            <if test="openId != null">
+                open_id = #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
             <if test="username != null">
                 username = #{username,jdbcType=VARCHAR},
             </if>

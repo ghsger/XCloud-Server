@@ -1,7 +1,5 @@
 package cn.zf233.xcloud.entity;
 
-import java.util.Objects;
-
 public class File {
     private Integer id;
 
@@ -11,9 +9,7 @@ public class File {
 
     private Integer folder;
 
-    private String groupName;
-
-    private String remoteFilePath;
+    private String randomFileName;
 
     private String oldFileName;
 
@@ -23,13 +19,26 @@ public class File {
 
     private String remark;
 
-    private Integer downloadCount;
-
-    private String redisCacheName;
-
     private Long uploadTime;
 
     private Long updateTime;
+
+    public File() {
+    }
+
+    public File(Integer id, Integer userId, Integer parentId, Integer folder, String randomFileName, String oldFileName, Long fileSize, String fileType, String remark, Long uploadTime, Long updateTime) {
+        this.id = id;
+        this.userId = userId;
+        this.parentId = parentId;
+        this.folder = folder;
+        this.randomFileName = randomFileName;
+        this.oldFileName = oldFileName;
+        this.fileSize = fileSize;
+        this.fileType = fileType;
+        this.remark = remark;
+        this.uploadTime = uploadTime;
+        this.updateTime = updateTime;
+    }
 
     public Integer getId() {
         return id;
@@ -63,20 +72,12 @@ public class File {
         this.folder = folder;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getRandomFileName() {
+        return randomFileName;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public String getRemoteFilePath() {
-        return remoteFilePath;
-    }
-
-    public void setRemoteFilePath(String remoteFilePath) {
-        this.remoteFilePath = remoteFilePath;
+    public void setRandomFileName(String randomFileName) {
+        this.randomFileName = randomFileName;
     }
 
     public String getOldFileName() {
@@ -111,22 +112,6 @@ public class File {
         this.remark = remark;
     }
 
-    public Integer getDownloadCount() {
-        return downloadCount;
-    }
-
-    public void setDownloadCount(Integer downloadCount) {
-        this.downloadCount = downloadCount;
-    }
-
-    public String getRedisCacheName() {
-        return redisCacheName;
-    }
-
-    public void setRedisCacheName(String redisCacheName) {
-        this.redisCacheName = redisCacheName;
-    }
-
     public Long getUploadTime() {
         return uploadTime;
     }
@@ -141,22 +126,5 @@ public class File {
 
     public void setUpdateTime(Long updateTime) {
         this.updateTime = updateTime;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        File file = (File) o;
-        return Objects.equals(id, file.id) && Objects.equals(userId, file.userId) && Objects.equals(parentId, file.parentId) && Objects.equals(folder, file.folder) && Objects.equals(groupName, file.groupName) && Objects.equals(remoteFilePath, file.remoteFilePath) && Objects.equals(oldFileName, file.oldFileName) && Objects.equals(fileSize, file.fileSize) && Objects.equals(fileType, file.fileType) && Objects.equals(remark, file.remark) && Objects.equals(downloadCount, file.downloadCount) && Objects.equals(redisCacheName, file.redisCacheName) && Objects.equals(uploadTime, file.uploadTime) && Objects.equals(updateTime, file.updateTime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, userId, parentId, folder, groupName, remoteFilePath, oldFileName, fileSize, fileType, remark, downloadCount, redisCacheName, uploadTime, updateTime);
     }
 }

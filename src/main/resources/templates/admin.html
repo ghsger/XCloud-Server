@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
+    <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
+    <base href="https://www.zf233.cn/xcloud/">
+    <!--<base href="http://localhost:8080/xcloud/">-->
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
+    <script type="text/javascript" src="https://www.zf233.cn/static/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://www.zf233.cn/static/js/home.js"></script>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to top right, rgba(224, 73, 13, 0.4), rgba(4, 149, 245, 0.5));
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        #upload_div {
+            text-align: center;
+            background-color: rgb(223, 224, 225);
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 5px 10px 5px 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 24px;
+        }
+
+        table tbody {
+            display: block;
+            height: 320px;
+            overflow-y: scroll;
+        }
+
+        table thead,
+        tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        table tbody tr:hover {
+            background-color: rgb(223, 224, 225);
+        }
+
+        table thead {
+            width: calc(100% - 1em)
+        }
+
+        table thead th {
+            background: #ccc;
+        }
+
+        input {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<div class="head">
+    <a href="user/browse/home">
+        <div class="logo">
+            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
+        </div>
+        <div class="logo02">
+            <img class='pic' src='https://www.zf233.cn/static//img/logo2.png' style="height: 30px;">
+        </div>
+    </a>
+    <div class="nav02">
+        <ul>
+            <div class="user">
+                <li>
+                    欢迎&nbsp;
+                    <a href="javascript:void(null);" style="font-size: 15px">
+                        <span th:text="${session.currentAdminUser.username}"></span>
+                    </a>&nbsp;
+                    Lv<span style="color: #ff7202" th:text="${session.currentAdminUser.level}"></span>
+                </li>
+            </div>
+            <div class="regist">
+                <li><a href="admin/logout">注销</a></li>
+            </div>
+        </ul>
+    </div>
+</div>
+<div id="path">
+    <span id="path01">
+    </span>
+    <span id="path02">
+    </span>
+</div>
+<div class="main01" th:if="${!session.adminVos.isEmpty()}">
+    <hr>
+    <br>
+    <table align="center" style="min-width:900px">
+        <thead style="font-size: 18px; font-style: italic">
+        <tr>
+            <td align="center">
+                序号
+            </td>
+            <td align="center">
+                email
+            </td>
+            <td align="center">
+                角色
+            </td>
+            <td align="center">
+                用户名
+            </td>
+            <td align="center">
+                昵称
+            </td>
+            <td align="center">
+                等级
+            </td>
+            <td align="center">
+                用量
+            </td>
+            <td align="center">
+                成长值
+            </td>
+            <td align="center">
+                注册时间
+            </td>
+            <td align="center">
+                操作
+            </td>
+        </tr>
+        </thead>
+        <tbody style="font-size: 15px">
+        <tr th:each="adminVo,adminVoStat:${session.adminVos}">
+            <td align="center" th:text="${adminVoStat.index + 1}">
+            </td>
+            <td align="center" th:text="${adminVo.email}">
+            </td>
+            <td align="center" th:text="${adminVo.role == -1 ? '未验证邮箱' : adminVo.role == 0 ? '注册用户' : adminVo.role == 2 ? '管理员' : '已锁定'}">
+            </td>
+            <td align="center" th:text="${adminVo.username}">
+            </td>
+            <td align="center" th:text="${adminVo.nickname}">
+            </td>
+            <td align="center" th:text="${adminVo.level}">
+            </td>
+            <td align="center" th:text="${adminVo.useCapacity + '/' + adminVo.capacity}">
+            </td>
+            <td align="center" th:text="${adminVo.growthValue}">
+            </td>
+            <td align="center" th:text="${adminVo.createTime}">
+            </td>
+            <td align="center" th:if="${adminVo.role == 2}">
+            </td>
+            <td align="center" th:if="${adminVo.role != 2}">
+                <span th:if="${adminVo.role == 1}">
+                    <a th:href="'admin/role?id=' + ${adminVo.id} + '&role=0'">解锁</a>
+                </span>
+                <span th:if="${adminVo.role == 0}">
+                    <a th:href="'admin/role?id=' + ${adminVo.id} + '&role=1'">锁定</a>
+                </span>
+                <a th:href="'admin/remove?id=' + ${adminVo.id}">移除</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="main01" th:if="${session.adminVos.isEmpty()}">
+    <hr>
+    <br>
+    <table align="center" style="min-width:900px">
+        <h2>无用户</h2>
+    </table>
+</div>
+<hr>
+<br>
+<div class="foot">
+    <span style="color: black">
+        <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
+        <p>zf233.cn&nbsp;All Rights Reserved·</p>
+        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-2</a></p>
+    </span>
+</div>
+</body>
+</html>

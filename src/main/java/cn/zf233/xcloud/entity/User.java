@@ -3,6 +3,10 @@ package cn.zf233.xcloud.entity;
 public class User {
     private Integer id;
 
+    private String openId;
+
+    private String email;
+
     private String username;
 
     private String nickname;
@@ -23,12 +27,47 @@ public class User {
 
     private Long updateTime;
 
+    public User() {
+    }
+
+    public User(Integer id, String openId, String email, String username, String nickname, String password, String question, String answer, Integer role, Integer level, Integer growthValue, Long createTime, Long updateTime) {
+        this.id = id;
+        this.openId = openId;
+        this.email = email;
+        this.username = username;
+        this.nickname = nickname;
+        this.password = password;
+        this.question = question;
+        this.answer = answer;
+        this.role = role;
+        this.level = level;
+        this.growthValue = growthValue;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
+
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getOpenId() {
+        return openId;
+    }
+
+    public void setOpenId(String openId) {
+        this.openId = openId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getUsername() {

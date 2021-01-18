@@ -7,17 +7,20 @@ import cn.zf233.xcloud.entity.AbsolutePath;
 import cn.zf233.xcloud.entity.File;
 import cn.zf233.xcloud.entity.User;
 import cn.zf233.xcloud.mapper.FileMapper;
-import cn.zf233.xcloud.mapper.UserMapper;
 import cn.zf233.xcloud.service.FileService;
-import cn.zf233.xcloud.util.FastDFSUtil;
+import cn.zf233.xcloud.service.UserService;
+import cn.zf233.xcloud.util.OSSUtil;
+import cn.zf233.xcloud.util.QRCodeUtil;
 import cn.zf233.xcloud.util.RedisUtil;
 import cn.zf233.xcloud.vo.FileVo;
+import cn.zf233.xcloud.vo.UserVo;
 import org.apache.commons.lang.StringUtils;
-import org.csource.common.MyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -32,24 +35,35 @@ public class FileServiceImpl implements FileService {
 
     @Resource
     private FileMapper fileMapper;
+
     @Resource
-    private UserMapper userMapper;
+    private UserService userService;
+
     @Resource
     private RedisUtil redisUtil;
+
     @Resource
-    private RedisUtil filePermissionRedisUtil;
+    private OSSUtil ossUtil;
 
     @Override
-    public ServerResponse<List<FileVo>> home(User user, Integer parentId, Integer sortFlag, Integer sortType, String matchCode) {
+    public ServerResponse<List<FileVo>> home(User user,
+                                             Integer parentId,
+                                             Integer sortFlag,
+                                             Integer sortType,
+                                             String matchCode) {
         List<File> files;
         if (parentId == null || parentId == -1) {
             File rootNode = fileMapper.selectRootNodeOfUserByPrimaryKey(user.getId());
             parentId = rootNode.getId();
         }
+
         File file = fileMapper.selectByPrimaryKey(parentId);
         if (file == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCodeENUM.ILLEGAL_ARGUMENT.getCode(), "文件夹不存在，请下拉以刷新");
+            return ServerResponse.createByErrorCodeMessage(
+                    ResponseCodeENUM.ILLEGAL_ARGUMENT.getCode(),
+                    "文件夹不存在，请下拉以刷新");
         }
+
         List<AbsolutePath> absolutePath = null;
         if (StringUtils.isNotBlank(matchCode)) {
             files = fileMapper.selectFilesByUserIDAndMatchCode(user.getId(), matchCode);
@@ -67,37 +81,56 @@ public class FileServiceImpl implements FileService {
         return ServerResponse.createBySuccessAbsolutePathMsg("获取成功", fileVos, absolutePath);
     }
 
+    // 保存文件信息到数据库
     @Override
     @Transactional
-    public ServerResponse saveFile(User user, File file, Integer parentId) {
+    public ServerResponse saveFile(User user, MultipartFile[] myFile, String remark, Integer parentId) throws IOException {
+        List<File> files = getFileAndUploadFile(myFile, remark, user);
+        UserVo userVoByPrimarykey = userService.getUserVoByPrimarykey(user.getId());
+
+        if (userVoByPrimarykey.getUseCapacity() + files.size() > userVoByPrimarykey.getLevel() * 10) {
+            return ServerResponse.createByErrorMessage("上传失败(空间已满)");
+        }
+
         if (parentId == null || parentId == -1) {
             File rootNode = fileMapper.selectRootNodeOfUserByPrimaryKey(user.getId());
-            file.setParentId(rootNode.getId());
+            parentId = rootNode.getId();
         } else {
             File fileOfParentId = fileMapper.selectByPrimaryKey(parentId);
             if (fileOfParentId == null) {
                 return ServerResponse.createByErrorIllegalArgument("文件夹不存在,下拉以刷新");
             }
+        }
+        for (File file : files) {
             file.setParentId(parentId);
         }
-        User targetUser = userMapper.selectByPrimaryKey(user.getId());
-        if (redisUtil.readUserUseCapacity(user) >= targetUser.getLevel() * 10) {
-            return ServerResponse.createByErrorMessage("上传失败(空间已满)");
+
+        int count = files.size();
+        for (int i = 0; i < files.size(); i++) {
+            int resultFlag = fileMapper.insert(files.get(i));
+            if (resultFlag > 0) {
+                ossUtil.upload(files.get(i).getRandomFileName(), myFile[i].getBytes());
+            } else {
+                count--;
+            }
         }
-        int resultFlag = fileMapper.insert(file);
-        if (resultFlag > 0) {
-            redisUtil.updateAddUserUseCapacity(user);
-            return ServerResponse.createBySuccessMessage("上传成功");
+        if (count > 0) {
+            int userUseCapacity = redisUtil.getUserUseCapacity(user.getId());
+            redisUtil.saveUserUseCapacity(user.getId(), userUseCapacity + count);
         }
-        return ServerResponse.createByErrorMessage("上传失败");
+        userService.updateUserGrowthValueByPrimaryKey(user.getId());
+        ossUtil.close();
+        return ServerResponse.createBySuccessMessage("上传成功");
     }
 
+    // 创建文件夹
     @Override
     @Transactional
     public ServerResponse createFolder(User user, String folderName, Integer parentId) {
         if (StringUtils.isBlank(folderName)) {
-            return ServerResponse.createBySuccessMessage("创建失败");
+            return ServerResponse.createByErrorMessage("创建失败");
         }
+
         File file = new File();
         if (parentId == null || parentId == -1) {
             File rootNode = fileMapper.selectRootNodeOfUserByPrimaryKey(user.getId());
@@ -114,6 +147,7 @@ public class FileServiceImpl implements FileService {
         file.setFolder(1);
         file.setUploadTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
         file.setUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+
         int resultFlag = fileMapper.insert(file);
         if (resultFlag > 0) {
             return ServerResponse.createBySuccessMessage("创建成功");
@@ -121,45 +155,75 @@ public class FileServiceImpl implements FileService {
         return ServerResponse.createBySuccessMessage("创建失败");
     }
 
+    // 删除单个文件、文件夹或递归删除整个文件夹
     @Override
     @Transactional
-    public ServerResponse removeFileOrFolder(Integer fileId, User user) {
-        File targetFile = fileMapper.selectByPrimaryKey(fileId);
-        if (targetFile == null) {
-            return ServerResponse.createByErrorIllegalArgument("文件或文件夹不存在");
-        }
-        Set<File> filesSet = new HashSet<>();
-        findChildParentId(filesSet, fileId, user.getId());
-        for (File file : filesSet) {
-            if (file.getFolder() == 0) {
-                if (StringUtils.isNotBlank(file.getRedisCacheName())) {
-                    redisUtil.removeFile(file.getRedisCacheName());
-                }
-                if (StringUtils.isNotBlank(file.getGroupName()) && StringUtils.isNotBlank(file.getRemoteFilePath())) {
-                    try {
-                        FastDFSUtil.delete(file.getGroupName(), file.getRemoteFilePath());
-                    } catch (IOException | MyException e) {
-                        e.printStackTrace();
-                        ServerResponse.createByErrorMessage("删除异常");
-                    }
-                }
-                redisUtil.updateReduceUserUseCapacity(user);
+    public ServerResponse removeFileOrFolder(Integer[] fileIds, User user) {
+        int count = 0;
+        int fileCount = 0;
+        for (Integer fileId : fileIds) {
+            File targetFile = fileMapper.selectByPrimaryKey(fileId);
+            if (targetFile == null) {
+                return ServerResponse.createByErrorIllegalArgument("文件或文件夹不存在");
             }
-            fileMapper.deleteByPrimaryKey(file.getId());
+            Set<File> filesSet = new HashSet<>();
+            findChildParentId(filesSet, fileId, user.getId());
+            for (File file : filesSet) {
+                if (file.getFolder() == 0) {
+                    if (ossUtil.objectNameExists(file.getRandomFileName())) {
+                        ossUtil.delete(file.getRandomFileName());
+                    }
+                    fileCount++;
+                }
+                fileMapper.deleteByPrimaryKey(file.getId());
+                count++;
+            }
         }
-        return ServerResponse.createBySuccessMessage("共计删除:" + filesSet.size() + "个文件或文件夹");
+        if (fileCount > 0) {
+            int userUseCapacity = redisUtil.getUserUseCapacity(user.getId());
+            redisUtil.saveUserUseCapacity(user.getId(), userUseCapacity - fileCount);
+        }
+        ossUtil.close();
+        return ServerResponse.createBySuccessMessage("共计删除:" + count + "个文件或文件夹");
     }
 
+    // 通过id获取文件
     @Override
     public File getFileByFileId(Integer fileId, Integer userId) {
         File file = fileMapper.selectByPrimaryKey(fileId);
         if (file.getFolder() == 0) {
-            file.setDownloadCount(file.getDownloadCount() + 1);
-            fileMapper.updateByPrimaryKeySelective(file);
+            userService.updateUserGrowthValueByPrimaryKey(userId);
         }
         return file;
     }
 
+    @Override
+    public ServerResponse getFileShareQrURL(Integer fileId, User user) {
+        if (fileId != null) {
+            try {
+                File targetFile = getFileByFileId(fileId, user.getId());
+
+                java.io.File folder = new java.io.File(Const.SHARE_QR_REAL_PATH);
+                if (!folder.exists()) {
+                    if (!folder.mkdir()) {
+                        return ServerResponse.createByErrorMessage("分享失败");
+                    }
+                }
+                String shareFileName = "file_share_" + UUID.randomUUID().toString() + ".jpg";
+                java.io.File file = new java.io.File(Const.SHARE_QR_REAL_PATH, shareFileName);
+                FileOutputStream os = new FileOutputStream(file);
+                QRCodeUtil.encode(Const.OSS_PATH_PREFIX + targetFile.getRandomFileName(), "/www/server/static/img/test.png", os, true);
+                os.close();
+                return ServerResponse.createBySuccess("获取分享二维码成功", "https://www.zf233.cn/static/img/share_qr/" + shareFileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ServerResponse.createByErrorMessage("分享失败");
+            }
+        }
+        return ServerResponse.createByErrorMessage("文件ID为空");
+    }
+
+    // 递归查询parentId所在绝对路径
     @Override
     public List<AbsolutePath> getAbsolutePath(Integer userId, Integer parentId) {
         File fileOfParentId = fileMapper.selectByPrimaryKey(parentId);
@@ -186,47 +250,7 @@ public class FileServiceImpl implements FileService {
         }
     }
 
-    @Override
-    @Transactional
-    public void filePersistenceTask() {
-        List<File> files = fileMapper.selectFiles();
-        for (File file : files) {
-            if (file.getFolder() == 0) {
-                if (StringUtils.isBlank(file.getGroupName()) && StringUtils.isBlank(file.getRemoteFilePath())) {
-                    try {
-                        byte[] fileBytes = filePermissionRedisUtil.getFile(file.getRedisCacheName());
-                        String fileExtName = file.getOldFileName().substring(file.getOldFileName().lastIndexOf(".") + 1);
-                        String[] upload = FastDFSUtil.upload(fileBytes, fileExtName);
-                        file.setGroupName(upload[0]);
-                        file.setRemoteFilePath(upload[1]);
-                        fileMapper.updateByPrimaryKeySelective(file);
-                    } catch (IOException | MyException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void requestFileFastTask() throws IOException, MyException {
-        List<File> files = fileMapper.selectFiles();
-        for (File file : files) {
-            if (file.getFolder() == 0 & StringUtils.isNotBlank(file.getGroupName()) && StringUtils.isNotBlank(file.getRemoteFilePath())) {
-                byte[] download;
-                if (StringUtils.isNotBlank(file.getRedisCacheName())) {
-                    download = filePermissionRedisUtil.getFile(file.getRedisCacheName());
-                    filePermissionRedisUtil.removeFile(file.getRedisCacheName());
-                } else {
-                    download = FastDFSUtil.download(file.getGroupName(), file.getRemoteFilePath());
-                }
-                String redisCacheName = filePermissionRedisUtil.saveFile(download);
-                file.setRedisCacheName(redisCacheName);
-                fileMapper.updateByPrimaryKeySelective(file);
-            }
-        }
-    }
-
+    // 递归查询所在parentId所在路径
     public List<AbsolutePath> findAbsolutePathByParentId(List<AbsolutePath> absolutePath, Integer parentId) {
         File fileOfParentId = fileMapper.selectByPrimaryKey(parentId);
         if (fileOfParentId != null) {
@@ -242,6 +266,7 @@ public class FileServiceImpl implements FileService {
         return absolutePath;
     }
 
+    // 组装文件展示对象
     private List<FileVo> assembleFileVoDetail(List<File> files) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         List<FileVo> fileVos = new ArrayList<>();
@@ -263,7 +288,6 @@ public class FileServiceImpl implements FileService {
                 fileVo.setFileType(fileExtName);
                 fileVo.setFileSize(builder.toString());
                 fileVo.setRemark(file.getRemark());
-                fileVo.setDownloadCount(file.getDownloadCount());
             }
             if (file.getOldFileName().indexOf(".") > 0) {
                 fileVo.setFileName(file.getOldFileName().substring(0, file.getOldFileName().lastIndexOf(".")));
@@ -274,8 +298,41 @@ public class FileServiceImpl implements FileService {
             fileVo.setFolder(file.getFolder());
             fileVo.setId(file.getId());
             fileVo.setParentId(file.getParentId());
+            fileVo.setDownloadURL(Const.OSS_PATH_PREFIX + file.getRandomFileName());
             fileVos.add(fileVo);
         }
         return fileVos;
+    }
+
+    // 组装上传文件对象
+    private File assembleFile(User user, String remark, String fileName, long fileSize, String fileType) {
+        File file = new File();
+        file.setUserId(user.getId());
+        file.setFolder(0);
+        if (fileName.contains(".")) {
+            file.setRandomFileName(fileName.substring(0, fileName.lastIndexOf(".")) + "_" +Const.DOMAIN_NAME + UUID.randomUUID().toString().replace("_", "") + fileName.substring(fileName.lastIndexOf(".")));
+        } else {
+            file.setRandomFileName(fileName + "_" +Const.DOMAIN_NAME + UUID.randomUUID().toString().replace("_", ""));
+        }
+        file.setOldFileName(fileName);
+        file.setFileSize(fileSize);
+        file.setFileType(fileType);
+        file.setRemark(remark);
+        file.setUploadTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        file.setUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+        return file;
+    }
+
+    // 协调上传文件组装
+    private List<File> getFileAndUploadFile(MultipartFile[] myFile, String remark, User currentUser) {
+        List<File> files = new ArrayList<>();
+        for (MultipartFile multipartFile : myFile) {
+            String fileName = Objects.requireNonNull(multipartFile.getOriginalFilename()).replace(" ", "");
+            long fileSize = multipartFile.getSize();
+            String fileType = multipartFile.getContentType();
+            File file = assembleFile(currentUser, remark, fileName, fileSize, fileType);
+            files.add(file);
+        }
+        return files;
     }
 }

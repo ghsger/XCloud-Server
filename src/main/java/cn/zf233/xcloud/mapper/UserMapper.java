@@ -9,11 +9,19 @@ public interface UserMapper {
 
     User selectUserByUsername(String username);
 
+    User selectUserByEmail(String email);
+
+    User selectUserByOpenId(String openId);
+
     User selectUserByUsernameAndPassword(User user);
+
+    User selectUserByEmailAndPassword(User user);
 
     Integer insert(User user);
 
     Integer updateByPrimaryKeySelective(User user);
 
     List<User> selectUsers();
+
+    void deleteByPrimaryKey(Integer id);
 }
