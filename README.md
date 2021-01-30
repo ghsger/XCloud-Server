@@ -64,12 +64,10 @@ XCloud : 适合初学者，喜欢的小伙伴可以点上边的Star支持一下�
 
 ### 页面展示
 #### 主要界面
-![](https://www.zf233.cn/static/img/git/xcloud/browse/share.png)
-![](https://www.zf233.cn/static/img/git/xcloud/browse/login_01.png)
+* <img src="https://www.zf233.cn/static/img/git/xcloud/browse/share.png" alt="分享" width="600px"/>
+* <img src="https://www.zf233.cn/static/img/git/xcloud/browse/login_01.png" alt="登陆" width="600px"/>
 #### 邮箱界面
-![](https://www.zf233.cn/static/img/git/xcloud/browse/email02.png)
-
-
+* <img src="https://www.zf233.cn/static/img/git/xcloud/browse/email02.png" alt="邮箱" width="600px"/>
 
 ### 本地开发运行部署
 
