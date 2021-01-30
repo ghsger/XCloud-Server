@@ -18,9 +18,9 @@ import java.util.Hashtable;
 
 public class QRCodeUtil {
 
-    //编码
+    // 编码
     private static final String CHARSET = "utf-8";
-    //文件格式
+    // 文件格式
     private static final String FORMAT = "JPG";
     // 二维码尺寸
     private static final int QRCODE_SIZE = 300;
@@ -34,25 +34,38 @@ public class QRCodeUtil {
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.CHARACTER_SET, CHARSET);
         hints.put(EncodeHintType.MARGIN, 1);
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, QRCODE_SIZE, QRCODE_SIZE,
-                hints);
+
+        BitMatrix bitMatrix = new MultiFormatWriter()
+                .encode(
+                        content,
+                        BarcodeFormat.QR_CODE,
+                        QRCODE_SIZE,
+                        QRCODE_SIZE,
+                        hints
+                );
+
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
+
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
             }
         }
+
         if (logoPath == null || "".equals(logoPath)) {
             return image;
         }
+
         QRCodeUtil.insertImage(image, logoPath, needCompress);
+
         return image;
     }
 
     private static void insertImage(BufferedImage source, String logoPath, boolean needCompress) throws IOException {
         InputStream inputStream = null;
+
         try {
             inputStream = new FileInputStream(logoPath);
             Image src = ImageIO.read(inputStream);
@@ -68,6 +81,7 @@ public class QRCodeUtil {
                 g.dispose();
                 src = image;
             }
+
             Graphics2D graph = source.createGraphics();
             int x = (QRCODE_SIZE - width) / 2;
             int y = (QRCODE_SIZE - height) / 2;
@@ -80,6 +94,7 @@ public class QRCodeUtil {
             e.printStackTrace();
             throw e;
         } finally {
+
             if (inputStream != null) {
                 try {
                     inputStream.close();

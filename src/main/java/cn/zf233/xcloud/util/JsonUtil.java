@@ -1,6 +1,7 @@
 package cn.zf233.xcloud.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -12,19 +13,31 @@ public class JsonUtil {
 
     public static <T> T toObject(String json, Class<T> tClass) {
         try {
+
             return mapper.readValue(json, tClass);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
+    }
+
+    public static <T> T toObject(String json, TypeReference<T> reference) {
+        try {
+
+            return mapper.readValue(json, reference);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static String toJson(Object o) {
         try {
+
             return mapper.writeValueAsString(o);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }

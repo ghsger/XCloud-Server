@@ -1,6 +1,11 @@
 package cn.zf233.xcloud.entity;
 
-public class File {
+import java.io.Serializable;
+
+public class File implements Serializable {
+
+    private static final long serialVersionUID = 8857945259217487581L;
+
     private Integer id;
 
     private Integer userId;

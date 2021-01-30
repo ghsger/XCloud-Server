@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by zf233 on 2020/11/4
  */
-public class PermissionsCheck implements HandlerInterceptor {
+public class PermissionCheck implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -17,7 +17,9 @@ public class PermissionsCheck implements HandlerInterceptor {
         if (user != null) {
             return true;
         }
+
         request.getRequestDispatcher("/user/browse/jump?jump=index").forward(request, response);
+
         return false;
     }
 }

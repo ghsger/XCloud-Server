@@ -17,7 +17,7 @@
     <sql id="Base_Column_List">
         id
         , user_id, parent_id, folder, random_file_name, old_file_name, file_size,
-    file_type, remark, upload_time, update_time
+        file_type, remark, upload_time, update_time
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -32,15 +32,15 @@
     </delete>
     <insert id="insert" parameterType="cn.zf233.xcloud.entity.File">
         insert into t_file (id, user_id, parent_id,
-                            folder, random_file_name,
-                            old_file_name, file_size, file_type,
-                            remark,
-                            upload_time, update_time)
+        folder, random_file_name,
+        old_file_name, file_size, file_type,
+        remark,
+        upload_time, update_time)
         values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER},
-                #{folder,jdbcType=INTEGER}, #{randomFileName,jdbcType=VARCHAR},
-                #{oldFileName,jdbcType=VARCHAR}, #{fileSize,jdbcType=BIGINT}, #{fileType,jdbcType=VARCHAR},
-                #{remark,jdbcType=VARCHAR},
-                #{uploadTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
+        #{folder,jdbcType=INTEGER}, #{randomFileName,jdbcType=VARCHAR},
+        #{oldFileName,jdbcType=VARCHAR}, #{fileSize,jdbcType=BIGINT}, #{fileType,jdbcType=VARCHAR},
+        #{remark,jdbcType=VARCHAR},
+        #{uploadTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
     </insert>
     <select id="selectRootNodeOfUserByPrimaryKey" resultMap="BaseResultMap">
         select

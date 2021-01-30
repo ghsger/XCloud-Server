@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.zf233.xcloud.mapper.UserMapper">
+    <cache type="cn.zf233.xcloud.util.RedisCache"/>
     <resultMap id="BaseResultMap" type="cn.zf233.xcloud.entity.User">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="open_id" jdbcType="VARCHAR" property="openId"/>
@@ -17,7 +18,8 @@
         <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, open_id, email
+        id
+        , open_id, email
         , username, nickname, password, question, answer, role, level, growth_value, create_time,
     update_time
     </sql>
@@ -72,7 +74,8 @@
                             password, question, answer,
                             role, level, growth_value,
                             create_time, update_time)
-        values (#{id,jdbcType=INTEGER}, #{openId,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{openId,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
+                #{username,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR}, #{question,jdbcType=VARCHAR}, #{answer,jdbcType=VARCHAR},
                 #{role,jdbcType=INTEGER}, #{level,jdbcType=INTEGER}, #{growthValue,jdbcType=INTEGER},
                 #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})

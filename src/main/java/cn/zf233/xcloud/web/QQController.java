@@ -11,6 +11,7 @@ import com.qq.connect.api.qzone.UserInfo;
 import com.qq.connect.javabeans.AccessToken;
 import com.qq.connect.javabeans.qzone.UserInfoBean;
 import com.qq.connect.oauth.Oauth;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -31,6 +32,7 @@ public class QQController {
 
     @RequestMapping("/qq/login")
     public String login(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+
         try {
             response.setContentType("text/html;charset=utf-8");
             String authorizeURL = new Oauth().getAuthorizeURL(request);
@@ -38,12 +40,13 @@ public class QQController {
         } catch (QQConnectException e) {
             session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, "点此返回");
             session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, "user/browse/jump?jump=login");
+
             return "redirect:/user/browse/jump?jump=notice";
         }
     }
 
-    // App QQ登陆接口
-    /*@RequestMapping("qq/login/phone")
+    // XCloud App QQ登陆接口(预留)
+    @RequestMapping("qq/login/phone")
     public ServerResponse loginOfPhone(String openId, String nickname) {
         if (StringUtils.isBlank(openId) || StringUtils.isBlank(nickname)) {
             return ServerResponse.createByErrorMessage("登陆失败");
@@ -52,7 +55,7 @@ public class QQController {
         user.setOpenId(openId);
         user.setNickname(removeNonBmpUnicode(nickname));
         return userService.qqLogin(user);
-    }*/
+    }
 
     @RequestMapping("/qq/login/callback")
     public String qqCallback(HttpServletRequest request, HttpSession session) throws QQConnectException {
@@ -85,9 +88,11 @@ public class QQController {
                 User user = new User();
                 user.setOpenId(openId);
                 user.setNickname(removeNonBmpUnicode(userInfoBean.getNickname()));
+
                 ServerResponse<UserVo> resp = userService.qqLogin(user);
                 if (resp.isSuccess()) { // 登陆或快速注册成功
                     session.setAttribute(Const.CURRENT_USER, resp.getData());
+
                     return "redirect:/user/browse/home";
                 } else { // 注册失败
                     session.setAttribute(Const.SessionAttributeCode.NOTICE_MSG, resp.getMsg());
@@ -98,6 +103,7 @@ public class QQController {
         }
         session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, "点此返回");
         session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, "user/browse/jump?jump=login");
+
         return "redirect:/user/browse/jump?jump=notice";
     }
 
@@ -107,6 +113,7 @@ public class QQController {
             return null;
         }
         str = str.replaceAll("[^\\u0000-\\uFFFF]", "");
+
         if ("".equals(str)) {
             str = "($ _ $)";
         }

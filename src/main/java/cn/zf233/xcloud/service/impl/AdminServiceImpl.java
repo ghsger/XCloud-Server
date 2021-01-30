@@ -8,7 +8,6 @@ import cn.zf233.xcloud.mapper.UserMapper;
 import cn.zf233.xcloud.service.AdminService;
 import cn.zf233.xcloud.service.FileService;
 import cn.zf233.xcloud.service.UserService;
-import cn.zf233.xcloud.util.RedisUtil;
 import cn.zf233.xcloud.vo.AdminVo;
 import cn.zf233.xcloud.vo.UserVo;
 import org.apache.commons.lang.StringUtils;
@@ -38,17 +37,17 @@ public class AdminServiceImpl implements AdminService {
     @Resource
     private UserService userService;
 
-    @Resource
-    private RedisUtil redisUtil;
-
     @Override
     public ServerResponse getAllUserInfo() {
         List<User> users = userMapper.selectUsers();
         List<AdminVo> adminVos = new ArrayList<>();
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
         AdminVo adminVo;
         for (User user : users) {
             adminVo = new AdminVo();
+
             adminVo.setId(user.getId());
             adminVo.setEmail(StringUtils.isBlank(user.getEmail()) ? "QQ用户" : user.getEmail());
             adminVo.setUsername(user.getUsername());
@@ -59,8 +58,10 @@ public class AdminServiceImpl implements AdminService {
             adminVo.setCapacity(user.getLevel() * 10);
             adminVo.setGrowthValue(user.getGrowthValue());
             adminVo.setCreateTime(sdf.format(user.getCreateTime()));
+
             adminVos.add(adminVo);
         }
+
         return ServerResponse.createBySuccess("获取成功", adminVos);
     }
 
@@ -68,6 +69,7 @@ public class AdminServiceImpl implements AdminService {
     public ServerResponse adminLogin(User user) {
         ServerResponse<UserVo> response = userService.login(user);
         if (response.isSuccess()) {
+
             if (response.getData().getRole() == 2) {
                 return ServerResponse.createBySuccess(response.getData());
             }
@@ -80,7 +82,6 @@ public class AdminServiceImpl implements AdminService {
     public ServerResponse updateUserRole(User user) {
         Integer flag = userMapper.updateByPrimaryKeySelective(user);
         if (flag > 0) {
-            redisUtil.saveUser(userMapper.selectByPrimaryKey(user.getId()));
             return ServerResponse.createBySuccessMessage("修改成功");
         }
         return ServerResponse.createByErrorMessage("修改失败");
@@ -88,27 +89,27 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ServerResponse removeUser(User user) {
-        User userInfo = redisUtil.getUser(user);
-        if (userInfo == null) {
-            userInfo = userMapper.selectByPrimaryKey(user.getId());
-        }
+        User userInfo = userMapper.selectByPrimaryKey(user.getId());
         File rootNode = fileMapper.selectRootNodeOfUserByPrimaryKey(userInfo.getId());
+
         ServerResponse serverResponse = fileService.removeFileOrFolder(new Integer[]{rootNode.getId()}, userInfo);
         if (serverResponse.isSuccess()) {
-            redisUtil.removeUserServerCache(userInfo);
+
             userMapper.deleteByPrimaryKey(userInfo.getId());
             if (StringUtils.isNotBlank(userInfo.getEmail())) {
+
                 try {
                     userService.sendCodeForUserRegist(userInfo.getEmail(),
                             "XCloud 用户提醒",
                             userInfo.getNickname(),
-                            "因使用违规，您的账号" + userInfo.getUsername() + "已经被XCloud自动移除，XCloud致力于保护您的隐私，您的满意是我们前进的动力。", "https://www.zf233.cn");
+                            "因使用违规，您的账号" + userInfo.getUsername() + "已经被XCloud自动移除，XCloud致力于保护您的隐私，您的满意是我们前进的动力。", "https://www.xcloud.show");
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 }
             }
             return ServerResponse.createBySuccessMessage("用户移除成功");
         }
+
         return serverResponse;
     }
 }

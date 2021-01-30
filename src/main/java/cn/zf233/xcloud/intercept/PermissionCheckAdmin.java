@@ -13,11 +13,13 @@ public class PermissionCheckAdmin implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Object user = request.getSession().getAttribute(Const.CURRENT_ADMIN_USER);
+        Object user = request.getSession().getAttribute(Const.CURRENT_ADMIN);
         if (user != null) {
             return true;
         }
+
         request.getRequestDispatcher("/admin").forward(request, response);
+
         return false;
     }
 }

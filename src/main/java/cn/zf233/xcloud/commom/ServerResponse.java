@@ -2,7 +2,7 @@ package cn.zf233.xcloud.commom;
 
 import cn.zf233.xcloud.entity.AbsolutePath;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,11 +10,13 @@ import java.util.List;
 /**
  * Created by zf233 on 2020/11/27
  */
-//保证序列化json的时候,如果是null的对象,key也会消失
-@JsonSerialize(include =  JsonSerialize.Inclusion.NON_NULL)
+// 保证序列化json的时候,如果是null的对象,key也会消失
+// @JsonSerialize(include =  JsonSerialize.Inclusion.NON_NULL) 低于2.0
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServerResponse<T> implements Serializable {
 
     private static final long serialVersionUID = -8020751417469577331L;
+
     private Integer status;
     private String msg;
     private List<AbsolutePath> absolutePath;

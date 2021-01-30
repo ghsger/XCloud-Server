@@ -6,6 +6,7 @@ package cn.zf233.xcloud.entity;
 public class AbsolutePath {
 
     private Integer parentid;
+
     private String folderName;
 
     public AbsolutePath() {

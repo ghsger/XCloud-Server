@@ -3,7 +3,6 @@ package cn.zf233.xcloud.service.impl;
 import cn.zf233.xcloud.entity.VersionPermission;
 import cn.zf233.xcloud.mapper.VersionPermissionMapper;
 import cn.zf233.xcloud.service.VersionPermissionService;
-import cn.zf233.xcloud.util.RedisUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -18,21 +17,9 @@ public class VersionPermissionServiceImpl implements VersionPermissionService {
     @Resource
     private VersionPermissionMapper versionPermissionMapper;
 
-    @Resource
-    private RedisUtil redisUtil;
-
     // 获取App版本号
     public VersionPermission getVersionPermission() {
-        String versionPermissionCode = redisUtil.getVersionPermission();
-        if (StringUtils.isNotBlank(versionPermissionCode)) {
-            VersionPermission versionPermission = new VersionPermission();
-            versionPermission.setId(1);
-            versionPermission.setCode(versionPermissionCode);
-            return versionPermission;
-        }
-        VersionPermission versionPermission = versionPermissionMapper.selectByPrimaryKey(1);
-        redisUtil.saveVersionPermission(versionPermission.getCode());
-        return versionPermission;
+        return versionPermissionMapper.selectByPrimaryKey(1);
     }
 
     // 测试App版本号是否一致
@@ -42,11 +29,13 @@ public class VersionPermissionServiceImpl implements VersionPermissionService {
         if (versionPermission == null || serviceVersionPermission == null) {
             return true;
         }
+
         String appVersionCode = versionPermission.getCode();
         String serviceCode = serviceVersionPermission.getCode();
         if (StringUtils.isBlank(appVersionCode) || StringUtils.isBlank(serviceCode)) {
             return true;
         }
+
         return !appVersionCode.equals(serviceCode);
     }
 
@@ -57,10 +46,12 @@ public class VersionPermissionServiceImpl implements VersionPermissionService {
         if (serviceVersionPermission == null) {
             return true;
         }
+
         String serviceCode = serviceVersionPermission.getCode();
         if (StringUtils.isBlank(appVersionCode) || StringUtils.isBlank(serviceCode)) {
             return true;
         }
+
         return !appVersionCode.equals(serviceCode);
     }
 }

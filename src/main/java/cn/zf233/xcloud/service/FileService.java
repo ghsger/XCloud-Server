@@ -18,7 +18,7 @@ public interface FileService {
 
     ServerResponse<List<FileVo>> home(User user, Integer parentId, Integer sortFlag, Integer sortType, String matchCode);
 
-    ServerResponse saveFile(User user, MultipartFile[] myFile, String remark, Integer parentId) throws IOException;
+    ServerResponse saveFile(User user, List<File> files, String remark, Integer parentId) throws IOException;
 
     ServerResponse createFolder(User user, String name, Integer parentId);
 

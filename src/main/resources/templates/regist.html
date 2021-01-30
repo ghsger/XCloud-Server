@@ -5,14 +5,102 @@
     <meta charset="UTF-8">
     <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
     <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
-    <base href="https://www.zf233.cn/xcloud/">
+    <base href="https://www.xcloud.show/xcloud/">
     <!--<base href="http://localhost:8080/xcloud/">-->
-    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
-    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
-    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
-    <script type="text/javascript" src="https://www.zf233.cn/static/js/jquery-2.1.4.min.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.xcloud.show/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/login_regist_css.css">
+    <script type="text/javascript" src="https://www.xcloud.show/static/js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript">
         $(function () {
+            $("#password").blur(function () {
+                var password = $("#password").val().trim();
+                if (password.length == 0) {
+                    $("#passwordInfo").text("密码不能为空");
+                    $("#passwordInfo").css("color", "red");
+                    return false;
+                } else {
+                    if (/^[a-zA-Z]\w{4,15}$/.test(password) == false) {
+                        $("#passwordInfo").text("密码格式有误");
+                        $("#passwordInfo").css("color", "red");
+                        return false;
+                    }
+                }
+                $("#passwordInfo").text("✔");
+                $("#passwordInfo").css("color", "green");
+            })
+            $("#username").blur(function () {
+                var username = $("#username").val().trim();
+                if (username.length == 0) {
+                    $("#userInfo").text("账号不能为空");
+                    $("#userInfo").css("color", "red");
+                    return false;
+                } else {
+                    if (/^[a-zA-Z][a-zA-Z0-9_]{4,15}$/.test(username) == false) {
+                        $("#userInfo").text("账号格式有误");
+                        $("#userInfo").css("color", "red");
+                        return false;
+                    }
+                }
+                $.post(
+                    'user/browse/check/info',
+                    {
+                        username: username
+                    },
+                    function (result) {
+                        if (result.status != 200) {
+                            $("#userInfo").text("账号已被占用");
+                            $("#userInfo").css("color", "red");
+                        } else {
+                            $("#userInfo").text("✔");
+                            $("#userInfo").css("color", "green");
+                        }
+                    },
+                    'json'
+                )
+            })
+            $("#email").blur(function () {
+                var email = $("#email").val().trim();
+                if (email.length == 0) {
+                    $("#emailInfo").text("邮箱不能为空");
+                    $("#emailInfo").css("color", "red");
+                    return false;
+                } else {
+                    if (/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email) == false) {
+                        $("#emailInfo").text("邮箱格式有误");
+                        $("#emailInfo").css("color", "red");
+                        return false;
+                    }
+                }
+                $.post(
+                    'user/browse/check/info',
+                    {
+                        email: email
+                    },
+                    function (result) {
+                        if (result.status != 200) {
+                            $("#emailInfo").text("邮箱已被占用");
+                            $("#emailInfo").css("color", "red");
+                        } else {
+                            $("#emailInfo").text("✔");
+                            $("#emailInfo").css("color", "green");
+                        }
+                    },
+                    'json'
+                )
+            })
+            $("#username").click(function () {
+                $("#userInfo").text("请输入账号");
+                $("#userInfo").css("color", "");
+            })
+            $("#password").click(function () {
+                $("#passwordInfo").text("请输入密码");
+                $("#passwordInfo").css("color", "");
+            })
+            $("#email").click(function () {
+                $("#emailInfo").text("请输入邮箱");
+                $("#emailInfo").css("color", "");
+            })
             $("#sub").click(function () {
                 var username = $("#username").val().trim();
                 var password = $("#password").val().trim();
@@ -29,11 +117,11 @@
                     alert("邮箱不可为空");
                     return false;
                 }
-                if (username.length < 5) {
+                if (/^[a-zA-Z][a-zA-Z0-9_]{4,15}$/.test(username) == false) {
                     alert("账号格式有误");
                     return false;
                 }
-                if (password.length < 5) {
+                if (/^[a-zA-Z]\w{4,15}$/.test(password) == false) {
                     alert("密码格式有误");
                     return false;
                 }
@@ -49,91 +137,31 @@
 <div class="head">
     <a href="user/browse/home">
         <div class="logo">
-            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
+            <img class='pic' src='https://www.xcloud.show/static/img/logo.png' style="height: 40px;">
         </div>
         <div class="logo02">
-            <img class='pic' src='https://www.zf233.cn/static//img/logo2.png' style="height: 30px;">
+            <img class='pic' src='https://www.xcloud.show/static//img/logo2.png' style="height: 30px;">
         </div>
     </a>
 </div>
 <form action="user/browse/regist" class="box" method="post">
     <h1>regist</h1>
-    <input type="text" name="username" placeholder="account" id="username" onblur="formValid.checkUserName()"
-           onclick="formClick.checkUserName()"/>
+    <input type="text" name="username" placeholder="account" id="username"/>
     <span class="imsg" id="userInfo">请输入账号</span>
-    <input type="text" placeholder="password" name="password" id="password" onblur="formValid.checkPassword()"
-           onclick="formClick.checkPassword()"/>
+    <input type="text" placeholder="password" name="password" id="password"/>
     <span class="imsg" id="passwordInfo">请输入密码</span>
     <input type="text" placeholder="nickname" name="nickname" id="nickname"/>
     <span class="imsg" id="nicknameInfo">请输入昵称</span>
-    <input type="text" name="email" placeholder="email" id="email"
-           onblur="formValid.checkInviteCode()" onclick="formClick.checkInviteCode()"/>
+    <input type="text" name="email" placeholder="email" id="email"/>
     <span class="imsg" id="emailInfo">请输入邮箱</span>
     <input type="submit" value="regist" id="sub">
 </form>
 <div id="foot">
-    <span style="color: black">
-        <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
-        <p>zf233.cn&nbsp;All Rights Reserved·</p>
-        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-2</a></p>
-    </span>
+        <span style="color: black">
+            <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
+            <p>xcloud.show&nbsp;All Rights Reserved·</p>
+            <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-3</a></p>
+        </span>
 </div>
-<script text="text/javascript">
-
-    var username = document.getElementById('username');
-    var password = document.getElementById('password');
-    var email = document.getElementById('email');
-
-    var userInfo = document.getElementById('userInfo');
-    var passwordInfo = document.getElementById('passwordInfo');
-    var emailInfo = document.getElementById('emailInfo');
-
-    var formValid = {
-        checkUserName: function () {
-            if (username.value.length == 0) {
-                userInfo.innerHTML = "账号不能为空";
-                userInfo.style.color = "red";
-                return false;
-            }
-        },
-        checkPassword: function () {
-            if (password.value.length == 0) {
-                passwordInfo.innerHTML = "密码不能为空";
-                passwordInfo.style.color = "red";
-                return false;
-            }
-        },
-        checkInviteCode: function () {
-            if (email.value.length == 0) {
-                emailInfo.innerHTML = "邮箱不能为空";
-                emailInfo.style.color = "red";
-                return false;
-            } else {
-                if (/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email.value) == false) {
-                    emailInfo.innerHTML = "邮箱格式有误";
-                    emailInfo.style.color = "red";
-                    return false;
-                }
-            }
-        }
-    };
-    var formClick = {
-        checkUserName: function () {
-            userInfo.innerHTML = "请输入账号";
-            userInfo.style.color = "";
-            return false;
-        },
-        checkPassword: function () {
-            passwordInfo.innerHTML = "请输入密码";
-            passwordInfo.style.color = "";
-            return false;
-        },
-        checkInviteCode: function () {
-            emailInfo.innerHTML = "请输入邮箱";
-            emailInfo.style.color = "";
-            return false;
-        }
-    }
-</script>
 </body>
 </html>

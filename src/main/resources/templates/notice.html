@@ -5,20 +5,20 @@
     <meta charset="UTF-8">
     <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
     <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
-    <base href="https://www.zf233.cn/xcloud/">
+    <base href="https://www.xcloud.show/xcloud/">
     <!--<base href="http://localhost:8080/xcloud/">-->
-    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
-    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
-    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.xcloud.show/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/login_regist_css.css">
 </head>
 <body>
 <div class="head">
     <a href="user/browse/home">
         <div class="logo">
-            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
+            <img class='pic' src='https://www.xcloud.show/static/img/logo.png' style="height: 40px;">
         </div>
         <div class="logo02">
-            <img class='pic' src='https://www.zf233.cn/static/img/logo2.png' style="height: 30px;">
+            <img class='pic' src='https://www.xcloud.show/static/img/logo2.png' style="height: 30px;">
         </div>
     </a>
 </div>
@@ -27,7 +27,7 @@
     <h1 th:text="${session.noticeMsg eq null ? 'XCloud通知页面' : session.noticeMsg}"></h1>
     <br>
     <h2>
-        <a th:href="${session.noticeBack eq null ? 'https://www.zf233.cn' : session.noticeBack}">
+        <a th:href="${session.noticeBack eq null ? 'https://www.xcloud.show' : session.noticeBack}">
             <span th:text="${session.noticeTitle eq null ? '返回' : session.noticeTitle}"></span>
         </a>
     </h2>
@@ -35,8 +35,8 @@
 <div class="foot">
     <span style="color: black">
         <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
-        <p>zf233.cn&nbsp;All Rights Reserved·</p>
-        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-2</a></p>
+        <p>xcloud.show&nbsp;All Rights Reserved·</p>
+        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-3</a></p>
     </span>
 </div>
 </body>

@@ -6,12 +6,14 @@ package cn.zf233.xcloud.commom;
 public class Const {
 
     public static final String CURRENT_USER = "currentUser";
-    public static final String CURRENT_ADMIN_USER = "currentAdminUser";
-    public static final String DOMAIN_NAME = "zf233";
+    public static final String CURRENT_ADMIN = "currentAdmin";
+    public static final String DOMAIN_NAME = ""; // domain与QQ联合登陆默认密码存储关联，故移除
     public static final String PARENTID = "parentid";
     public static final String ABSOLUTEPATH = "absolutePath";
     public static final String OSS_PATH_PREFIX = "https://zf233.oss-cn-beijing.aliyuncs.com/";
     public static final String SHARE_QR_REAL_PATH = "/www/server/static/img/share_qr";
+    public static final String USER_UUID_KEY_PREFIX = "zf233_user_regist_uuid.";
+
 
     // 可排序字段枚举
     public enum SortFieldENUM {
@@ -30,6 +32,7 @@ public class Const {
                     return sortFieldENUM;
                 }
             }
+
             throw new RuntimeException("么有找到对应的枚举");
         }
 
@@ -75,6 +78,7 @@ public class Const {
                     return checkEmailENUM;
                 }
             }
+
             return null;
         }
 
@@ -94,6 +98,7 @@ public class Const {
 
     // 页面名枚举
     public enum PageNameENUM {
+
         PAGE_HOME("home", 0),
         PAGE_INDEX("index", 1),
         PAGE_LOGIN("login", 2),
@@ -110,6 +115,7 @@ public class Const {
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -128,12 +134,13 @@ public class Const {
     }
 
     public interface SessionAttributeCode {
+
         String FILE_VOS = "fileVos"; // 文件展示对象
         String ERROR_MSG = "errorMsg"; // 错误信息
         String ERROR_BACK = "errorBack"; // 错误跳转页面
         String NOTICE_MSG = "noticeMsg"; // 通知信息
         String NOTICE_BACK = "noticeBack"; // 通知跳转页面
         String NOTICE_TITLE = "noticeTitle"; // 通知标题
-    }
 
+    }
 }

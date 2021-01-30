@@ -4,8 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <settings>
-        <!--设置mybatis输出日志-->
+        <!--设置mybatis输出日志 * (log4j2需要修改配置文件以及yml文件)-->
+        <!--<setting name="logImpl" value="LOG4J2"/>-->
         <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <!--二级缓存-->
+        <setting name="cacheEnabled" value="true"/>
     </settings>
 </configuration>
 

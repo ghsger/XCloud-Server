@@ -17,7 +17,9 @@ public class EmailUtilConfig {
     @Bean
     public EmailUtil emailUtil() {
         EmailUtil emailUtil = new EmailUtil();
+
         emailUtil.setFrom(fromMail);
+
         return emailUtil;
     }
 }

@@ -1,10 +1,16 @@
 package cn.zf233.xcloud.entity;
 
+import java.io.Serializable;
+
 /**
  * Created by zf233 on 2020/12/15
  */
-public class VersionPermission {
+public class VersionPermission implements Serializable {
+
+    private static final long serialVersionUID = -7059663674119841998L;
+
     private Integer id;
+
     private String code;
 
     public VersionPermission() {

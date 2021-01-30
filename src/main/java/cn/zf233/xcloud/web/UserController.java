@@ -52,12 +52,15 @@ public class UserController {
         if (body == null) {
             return ServerResponse.createByErrorIllegalArgument();
         }
+
         if (versionPermissionService.testVersionCodeOfUserRequest(body.getVersionPermission())) {
             return ServerResponse.createByErrorCodeMessage(ResponseCodeENUM.VERSION_FAILURE.getCode(), "过时的App版本");
         }
+
         if (checkUserDetailOfApp(body.getUser())) {
             return fileService.home(body.getUser(), body.getParentid(), body.getSortFlag(), body.getSortType(), body.getMatchCode());
         }
+
         return ServerResponse.createByErrorIllegalArgument("登陆失效");
     }
 
@@ -69,9 +72,11 @@ public class UserController {
         if (body == null) {
             return ServerResponse.createByErrorIllegalArgument();
         }
+
         if (versionPermissionService.testVersionCodeOfUserRequest(body.getVersionPermission())) {
             return ServerResponse.createByErrorCodeMessage(ResponseCodeENUM.VERSION_FAILURE.getCode(), "过时的App版本");
         }
+
         return userService.login(body.getUser());
     }
 
@@ -83,9 +88,11 @@ public class UserController {
         if (body == null) {
             return ServerResponse.createByErrorIllegalArgument();
         }
+
         if (versionPermissionService.testVersionCodeOfUserRequest(body.getVersionPermission())) {
             return ServerResponse.createByErrorCodeMessage(ResponseCodeENUM.VERSION_FAILURE.getCode(), "过时的App版本");
         }
+
         return userService.regist(body.getUser());
     }
 
@@ -97,15 +104,35 @@ public class UserController {
         if (body == null) {
             return ServerResponse.createByErrorIllegalArgument();
         }
+
         if (versionPermissionService.testVersionCodeOfUserRequest(body.getVersionPermission())) {
             return ServerResponse.createByErrorCodeMessage(ResponseCodeENUM.VERSION_FAILURE.getCode(), "过时的App版本");
         }
+
         if (checkUserDetailOfApp(body.getUser())) {
             return userService.update(body.getUser());
         }
+
         return ServerResponse.createByErrorIllegalArgument("登陆失效");
     }
+
+    // 注册检查 异步AJAX 响应Json (预留)
+    @RequestMapping(value = "/browse/check/info", method = RequestMethod.POST)
+    public @ResponseBody
+    ServerResponse userInfoCheck(String requestBody) {
+        RequestBody body = JsonUtil.toObject(requestBody, RequestBody.class);
+        if (body == null) {
+            return ServerResponse.createByErrorIllegalArgument();
+        }
+
+        if (versionPermissionService.testVersionCodeOfUserRequest(body.getVersionPermission())) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCodeENUM.VERSION_FAILURE.getCode(), "过时的App版本");
+        }
+
+        return userService.checkUserInfoExists(body.getUser());
+    }
     // phone end
+
 
     // browse start
     // 用户主页
@@ -115,7 +142,6 @@ public class UserController {
                                @RequestParam(required = false) Integer sortFlag,
                                @RequestParam(required = false) Integer sortType,
                                @RequestParam(required = false) String matchCode) {
-
         UserVo userVo = (UserVo) session.getAttribute(Const.CURRENT_USER);
         if (userVo != null) {
 
@@ -125,8 +151,8 @@ public class UserController {
             if (parentid == null) {
                 parentid = (Integer) session.getAttribute(Const.PARENTID);
             }
-            ServerResponse<List<FileVo>> homeResponse = fileService.home(user, parentid, sortFlag, sortType, matchCode);
 
+            ServerResponse<List<FileVo>> homeResponse = fileService.home(user, parentid, sortFlag, sortType, matchCode);
             if (!homeResponse.isSuccess()) {
                 parentid = -1;
                 homeResponse = fileService.home(user, parentid, sortFlag, sortType, matchCode);
@@ -136,6 +162,7 @@ public class UserController {
             session.removeAttribute(Const.ABSOLUTEPATH);
             session.removeAttribute(Const.PARENTID);
             session.removeAttribute(Const.CURRENT_USER);
+
             if (StringUtils.isBlank(matchCode)) {
                 session.setAttribute(Const.ABSOLUTEPATH, homeResponse.getAbsolutePath());
                 session.setAttribute(Const.PARENTID, parentid);
@@ -143,6 +170,7 @@ public class UserController {
             session.setAttribute(Const.CURRENT_USER, userByPrimarykey);
             session.setAttribute(Const.SessionAttributeCode.FILE_VOS, homeResponse.getData());
         }
+
         return "home";
     }
 
@@ -150,21 +178,23 @@ public class UserController {
     @RequestMapping(value = "/browse/login", method = RequestMethod.POST)
     public String userLogin(User user, HttpSession session) throws LoginException {
         ServerResponse<UserVo> loginResponse = userService.login(user);
-
         if (loginResponse.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER, loginResponse.getData());
             return "redirect:/user/browse/home";
-        } else {
-            if (loginResponse.getStatus() == Const.CheckEmailENUM.NOT_CHECK.getCode()) {
-                Map<String, String> map = checkJump(loginResponse.getStatus(), loginResponse.getData().getId());
-                if (map != null) {
-                    session.setAttribute(Const.SessionAttributeCode.NOTICE_MSG, loginResponse.getMsg());
-                    session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, map.get("uri"));
-                    session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, map.get("title"));
-                    return "redirect:/user/browse/jump?jump=notice";
-                }
+        }
+
+        if (loginResponse.getStatus() == Const.CheckEmailENUM.NOT_CHECK.getCode()) {
+
+            Map<String, String> map = checkJump(loginResponse.getStatus(), loginResponse.getData().getId());
+            if (map != null) {
+                session.setAttribute(Const.SessionAttributeCode.NOTICE_MSG, loginResponse.getMsg());
+                session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, map.get("uri"));
+                session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, map.get("title"));
+
+                return "redirect:/user/browse/jump?jump=notice";
             }
         }
+
         throw new UserLoginException(loginResponse.getMsg());
     }
 
@@ -172,6 +202,7 @@ public class UserController {
     @RequestMapping("/browse/logout")
     public String userLogout(HttpSession session) {
         session.invalidate();
+
         return "redirect:/user/browse/jump?jump=index";
     }
 
@@ -183,8 +214,10 @@ public class UserController {
             session.setAttribute(Const.SessionAttributeCode.NOTICE_MSG, registResponse.getMsg());
             session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, "user/browse/again?id=" + registResponse.getData().getId());
             session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, "重新获取邮箱验证");
+
             return "redirect:/user/browse/jump?jump=notice";
         }
+
         throw new RegistException(registResponse.getMsg());
     }
 
@@ -194,8 +227,10 @@ public class UserController {
         ServerResponse<UserVo> updateResponse = userService.update(user);
         if (updateResponse.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER, updateResponse.getData());
+
             return "redirect:/user/browse/home";
         }
+
         throw new UserDetailUpdateException(updateResponse.getMsg());
     }
 
@@ -207,9 +242,18 @@ public class UserController {
             session.setAttribute(Const.SessionAttributeCode.NOTICE_MSG, serverResponse.getMsg());
             session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, "user/browse/jump?jump=login");
             session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, "点此返回");
+
             return "redirect:/user/browse/jump?jump=notice";
         }
+
         return getJump(session, user, serverResponse);
+    }
+
+    // 注册检查 异步AJAX 响应Json
+    @RequestMapping(value = "/browse/check/info", method = RequestMethod.POST)
+    public @ResponseBody
+    ServerResponse userInfoCheck(User user) {
+        return userService.checkUserInfoExists(user);
     }
 
     // 再次发送验证邮件
@@ -220,8 +264,10 @@ public class UserController {
             session.setAttribute(Const.SessionAttributeCode.NOTICE_MSG, serverResponse.getMsg());
             session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, "user/browse/again?id=" + user.getId());
             session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, "重新获取邮箱验证");
+
             return "redirect:/user/browse/jump?jump=notice";
         }
+
         return getJump(session, user, serverResponse);
     }
 
@@ -231,32 +277,33 @@ public class UserController {
                        HttpSession session) {
 
         UserVo userVo = (UserVo) session.getAttribute(Const.CURRENT_USER);
+
         // 查看jump目标是否存在
         if (Const.PageNameENUM.exists(jump)) { //存在
-            // 未登陆
-            if (userVo == null) {
-                // 可以链接转到到登陆、注册、通知页面
+
+            if (userVo == null) { // 未登陆
+
                 if (Const.PageNameENUM.PAGE_LOGIN.getName().equals(jump) ||
                         Const.PageNameENUM.PAGE_REGIST.getName().equals(jump) ||
-                        Const.PageNameENUM.PAGE_NOTICE.getName().equals(jump)) {
+                        Const.PageNameENUM.PAGE_NOTICE.getName().equals(jump)) { // 可以链接转到到登陆、注册、通知页面
                     return jump;
                 }
-                // 否则转到欢迎页
-                return "index";
+
+                return "index"; // 否则转到欢迎页
             }
-            // 已登陆只可以转到用户信息页
-            if (Const.PageNameENUM.PAGE_USER_DETAIL.getName().equals(jump)) {
+
+            if (Const.PageNameENUM.PAGE_USER_DETAIL.getName().equals(jump)) { // 已登陆只可以转到用户信息页
                 return jump;
             }
-            // 否则转到用户主页
-            return "home";
+
+            return "home"; // 否则转到用户主页
         }
-        // 未登录 转到欢迎页
-        if (userVo == null) {
+
+        if (userVo == null) { // 未登录 转到欢迎页
             return "index";
         }
-        // 已登陆 转到用户主页
-        return "home";
+
+        return "home"; // 已登陆 转到用户主页
     }
 
     private String getJump(HttpSession session, User user, ServerResponse serverResponse) {
@@ -265,8 +312,10 @@ public class UserController {
             session.setAttribute(Const.SessionAttributeCode.NOTICE_MSG, serverResponse.getMsg());
             session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, map.get("uri"));
             session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, map.get("title"));
+
             return "redirect:/user/browse/jump?jump=notice";
         }
+
         throw new RegistException(serverResponse.getMsg());
     }
 
@@ -276,32 +325,26 @@ public class UserController {
         // 根据code获取对应枚举
         Const.CheckEmailENUM exists = Const.CheckEmailENUM.exists(code);
         Map<String, String> map = new HashMap<>();
-        // 存在
-        if (exists != null) {
-            if (exists.getCode() == 0) {
-                map.put("uri", "user/browse/again?id=" + userId);
-                map.put("title", "重新获取邮箱验证");
-            } else if (exists.getCode() == 1) {
-                map.put("uri", "user/browse/again?id=" + userId);
-                map.put("title", "重新获取邮箱验证");
-            } else if (exists.getCode() == 2) {
-                map.put("uri", "user/browse/again?id=" + userId);
-                map.put("title", "重新获取邮箱验证");
-            } else if (exists.getCode() == 3) {
-                map.put("uri", "user/browse/jump?jump=login");
-                map.put("title", "点此返回");
-            } else if (exists.getCode() == 4) {
-                map.put("uri", "user/browse/jump?jump=regist");
-                map.put("title", "点此返回");
-            } else if (exists.getCode() == 5) {
-                map.put("uri", "user/browse/jump?jump=login");
-                map.put("title", "点此返回");
-            } else if (exists.getCode() == 6) {
-                map.put("uri", "user/browse/again?id=" + userId);
-                map.put("title", "重新获取邮箱验证");
+        if (exists != null) { // 存在
+            switch (exists.getCode()) {
+                case 0:
+                case 1:
+                case 2:
+                case 6:
+                    map.put("uri", "user/browse/again?id=" + userId);
+                    map.put("title", "重新获取邮箱验证");
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    map.put("uri", "user/browse/jump?jump=login");
+                    map.put("title", "点此返回");
+                    break;
             }
+
             return map;
         }
+
         // 不存在
         return null;
     }
@@ -310,7 +353,7 @@ public class UserController {
     // App端登陆检查用户细节和App版本
     private Boolean checkUserDetailOfApp(User user) {
         ServerResponse<UserVo> loginResponse = userService.login(user);
+
         return loginResponse.isSuccess();
     }
-
 }

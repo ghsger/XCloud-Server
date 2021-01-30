@@ -25,6 +25,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <!--排除内置Logging 使用Log4j2时打开-->
+            <!--<exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>-->
         </dependency>
 
         <dependency>
@@ -42,24 +49,14 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
-            <version>1.1.23</version>
+            <version>1.1.22</version>
         </dependency>
 
-        <!--oos-->
+        <!--oss-->
         <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>
             <version>3.11.2</version>
-        </dependency>
-
-        <!--jackson-->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
         </dependency>
 
         <!--redis-->
@@ -85,24 +82,38 @@
             <version>2.6</version>
             <scope>compile</scope>
         </dependency>
+
+        <!--QR-->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>2.1</version>
         </dependency>
 
+        <!--email-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <!--QQ 互联-->
         <dependency>
             <groupId>net.gplatform</groupId>
             <artifactId>Sdk4J</artifactId>
             <version>2.0</version>
         </dependency>
 
+        <!--aop-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
 
+        <!--log4j2依赖-->
+        <!--<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>-->
     </dependencies>
 
     <build>
@@ -119,6 +130,9 @@
                 <includes>
                     <include>**/*.*</include>
                 </includes>
+                <excludes>
+                    <exclude>static/**/*.*</exclude>
+                </excludes>
             </resource>
         </resources>
         <plugins>
@@ -135,6 +149,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.3.5.RELEASE</version>
             </plugin>
         </plugins>
     </build>

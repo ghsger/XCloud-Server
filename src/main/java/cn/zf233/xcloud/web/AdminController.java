@@ -21,48 +21,46 @@ public class AdminController {
     private AdminService adminService;
 
     // 后台主页
-    @RequestMapping("/admin/home")
+    @RequestMapping("/admin")
     public String home(HttpSession session) {
-        ServerResponse allUserInfo = adminService.getAllUserInfo();
-        session.setAttribute("adminVos", allUserInfo.getData());
-        return "admin";
+        Object currentAdmin = session.getAttribute(Const.CURRENT_ADMIN);
+        if (currentAdmin != null) {
+            ServerResponse allUserInfo = adminService.getAllUserInfo();
+            session.setAttribute("adminVos", allUserInfo.getData());
+            return "admin";
+        }
+        return "admin_login";
     }
 
     // 移除用户
     @RequestMapping("/admin/remove")
     public String remove(User user) {
         adminService.removeUser(user);
-        return "redirect:/admin/home";
+        return "redirect:/admin";
     }
 
     // 设置用户权限（锁定/解锁）
     @RequestMapping("/admin/role")
     public String setRole(User user) {
         adminService.updateUserRole(user);
-        return "redirect:/admin/home";
+        return "redirect:/admin";
     }
 
     // 管理员登陆
     @RequestMapping("/admin/login")
-    public String login(HttpSession session, User user) {
+    public String login(User user, HttpSession session) {
         ServerResponse response = adminService.adminLogin(user);
         if (response.isSuccess()) {
-            session.setAttribute(Const.CURRENT_ADMIN_USER, response.getData());
-            return "redirect:/admin/home";
+            session.setAttribute(Const.CURRENT_ADMIN, response.getData());
+            return "redirect:/admin";
         }
         throw new LoginException(response.getMsg());
-    }
-
-    // 管理员登陆
-    @RequestMapping("/admin")
-    public String login() {
-        return "admin_login";
     }
 
     // 管理员登出
     @RequestMapping("/admin/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "admin_login";
+        return "index";
     }
 }

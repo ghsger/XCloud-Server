@@ -7,6 +7,7 @@ import cn.zf233.xcloud.entity.VersionPermission;
  * Created by zf233 on 2020/11/28
  */
 public class RequestBody {
+
     private User user;
     private Integer sortFlag;
     private Integer sortType;

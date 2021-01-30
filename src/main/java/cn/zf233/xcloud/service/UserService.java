@@ -32,7 +32,7 @@ public interface UserService {
 
     void refreshUserLevelTask();
 
-    void clearUsersServerDetailCacheTask();
+    void removeUserInfoOfRegistFailTask();
 
     void sendCodeForUserRegist(String to,
                                String title,
@@ -40,4 +40,5 @@ public interface UserService {
                                String contentOfPage,
                                String url) throws MessagingException;
 
+    ServerResponse checkUserInfoExists(User user);
 }

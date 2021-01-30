@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
     <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
-    <base href="https://www.zf233.cn/xcloud/">
+    <base href="https://www.xcloud.show/xcloud/">
     <!--<base href="http://localhost:8080/xcloud/">-->
-    <link rel="shortcut icon" type="image/x-icon" href="https://www.zf233.cn/static/img/favicon.ico">
-    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/index.css">
-    <link type="text/css" rel="stylesheet" href="https://www.zf233.cn/static/css/login_regist_css.css">
-    <script type="text/javascript" src="https://www.zf233.cn/static/js/jquery-2.1.4.min.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="https://www.xcloud.show/static/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/login_regist_css.css">
+    <script type="text/javascript" src="https://www.xcloud.show/static/js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript">
         $(function () {
             $("#regist").click(function () {
@@ -19,7 +19,7 @@
                     alert("密码不可为空");
                     return false;
                 }
-                if (password.length < 5) {
+                if (/^[a-zA-Z]\w{4,15}$/.test(password) == false) {
                     alert("密码格式有误");
                     return false;
                 }
@@ -31,10 +31,10 @@
 <div class="head">
     <a href="user/browse/home">
         <div class="logo">
-            <img class='pic' src='https://www.zf233.cn/static/img/logo.png' style="height: 40px;">
+            <img class='pic' src='https://www.xcloud.show/static/img/logo.png' style="height: 40px;">
         </div>
         <div class="logo02">
-            <img class='pic' src='https://www.zf233.cn/static//img/logo2.png' style="height: 30px;">
+            <img class='pic' src='https://www.xcloud.show/static//img/logo2.png' style="height: 30px;">
         </div>
     </a>
 </div>
@@ -52,8 +52,8 @@
 <div id="foot">
     <span style="color: black">
         <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
-        <p>zf233.cn&nbsp;All Rights Reserved·</p>
-        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-2</a></p>
+        <p>xcloud.show&nbsp;All Rights Reserved·</p>
+        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-3</a></p>
     </span>
 </div>
 <script text="text/javascript">
@@ -67,6 +67,14 @@
                 passwordInfo.innerHTML = "密码不能为空";
                 passwordInfo.style.color = "red";
                 return false;
+            } else {
+                if (/^[a-zA-Z]\w{4,15}$/.test(password.value) == false) {
+                    passwordInfo.innerHTML = "密码格式有误";
+                    passwordInfo.style.color = "red";
+                    return false;
+                }
+                passwordInfo.innerHTML = "✔";
+                passwordInfo.style.color = "green";
             }
         }
     };
@@ -79,4 +87,3 @@
     }
 </script>
 </body>
-</html>

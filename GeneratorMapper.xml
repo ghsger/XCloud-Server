@@ -3,21 +3,25 @@
         PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
+
     <!-- 指定连接数据库的 JDBC 驱动包所在位置，指定到你本机的完整路径 -->
-    <classPathEntry
-            location="/Users/zhangfan/IdeaProjects/xcloud/xcloud/mysql-connector-java-5.1.6-bin.jar"/>
+    <classPathEntry location="/Users/zhangfan/IdeaProjects/xcloud/xcloud/mysql-connector-java-5.1.6-bin.jar"/>
+
     <!-- 配置 table 表信息内容体，targetRuntime 指定采用 MyBatis3 的版本 -->
     <context id="tables" targetRuntime="MyBatis3">
+
         <!-- 抑制生成注释，由于生成的注释都是英文的，可以不让它生成 -->
         <commentGenerator>
             <property name="suppressAllComments" value="true"/>
         </commentGenerator>
+
         <!-- 配置数据库连接信息 -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://0.0.0.0:3306/xcloud?characterEncoding=utf-8"
+                        connectionURL="jdbc:mysql://182.92.233.100:3306/xcloud?characterEncoding=utf-8"
                         userId="root"
-                        password="">
+                        password="zhangfanfan306">
         </jdbcConnection>
+
         <!-- 生成 model 类，targetPackage 指定 model 类的包名， targetProject 指定
         生成的 model 放在 eclipse 的哪个工程下面-->
         <javaModelGenerator targetPackage="cn.zf233.xcloud.test"
@@ -25,12 +29,14 @@
             <property name="enableSubPackages" value="false"/>
             <property name="trimStrings" value="false"/>
         </javaModelGenerator>
+
         <!-- 生成 MyBatis 的 Mapper.xml 文件，targetPackage 指定 mapper.xml 文件的
         包名， targetProject 指定生成的 mapper.xml 放在 eclipse 的哪个工程下面 -->
         <sqlMapGenerator targetPackage="cn.zf233.xcloud.test"
                          targetProject="src/main/java">
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
+
         <!-- 生成 MyBatis 的 Mapper 接口类文件,targetPackage 指定 Mapper 接口类的包
         名， targetProject 指定生成的 Mapper 接口放在 eclipse 的哪个工程下面 -->
         <javaClientGenerator type="XMLMAPPER"
@@ -38,22 +44,23 @@
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
 
-        <!-- 数据库表名及对应的 Java 模型类名 -->
+        <!--数据库表名及对应的 Java 模型类名-->
         <table tableName="t_user" domainObjectName="User"
                enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false"
                enableSelectByExample="false"
                selectByExampleQueryId="false">
-<!--            <property name="useActualColumnNames" value="true"/>-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
         </table>
+
         <table tableName="t_file" domainObjectName="File"
                enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false"
                enableSelectByExample="false"
                selectByExampleQueryId="false">
-<!--            <property name="useActualColumnNames" value="true"/>-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
         </table>
     </context>
 </generatorConfiguration>
