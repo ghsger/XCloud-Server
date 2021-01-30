@@ -65,7 +65,7 @@ XCloud : 适合初学者，喜欢的小伙伴可以点上边的Star支持一下�
 ### 页面展示
 #### 主要界面
 ![](https://www.zf233.cn/static/img/git/xcloud/browse/share.png)
-![](https://www.zf233.cn/static/img/git/xcloud/browse/login.png)
+![](https://www.zf233.cn/static/img/git/xcloud/browse/login_01.png)
 #### 邮箱界面
 ![](https://www.zf233.cn/static/img/git/xcloud/browse/email02.png)
 
