@@ -18,7 +18,6 @@ public class MVCConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("redirect:https://www.xcloud.show/xcloud/user/browse/home");
 //        registry.addViewController("/").setViewName("redirect:/user/browse/home");
-
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 

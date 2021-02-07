@@ -207,20 +207,17 @@ public class FileController {
         return ServerResponse.createByErrorIllegalArgument("登陆失效");
     }
 
-
     // 组装上传文件对象
     private File assembleFile(User user, String remark, String fileName, long fileSize, String fileType) {
         File file = new File();
+
         file.setUserId(user.getId());
         file.setFolder(0);
-        if (fileName.contains(".")) {
-            file.setRandomFileName(fileName.substring(0, fileName.lastIndexOf(".")) + "_" + Const.DOMAIN_NAME + UUID.randomUUID().toString().replace("_", "") + fileName.substring(fileName.lastIndexOf(".")));
-        } else {
-            file.setRandomFileName(fileName + "_" + Const.DOMAIN_NAME + UUID.randomUUID().toString().replace("_", ""));
-        }
+        file.setRandomFileName(StringUtils.reverse(String.valueOf(System.currentTimeMillis())) + Const.DOMAIN_NAME + UUID.randomUUID().toString().replace("-", "") + fileName.substring(fileName.lastIndexOf(".")));
         file.setOldFileName(fileName);
         file.setFileSize(fileSize);
         file.setFileType(fileType);
+        file.setClassify(getClassify(fileName.substring(fileName.lastIndexOf("."))));
         file.setRemark(remark);
         file.setUploadTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
         file.setUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
@@ -257,8 +254,18 @@ public class FileController {
 
                     queue.offer(fileCacheKey);
                     files.add(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (IOException e01) { // 尝试重新缓存
+                    e01.printStackTrace();
+
+                    try {
+                        String fileCacheKey = Const.DOMAIN_NAME + "_" + UUID.randomUUID().toString();
+                        redisUtil.setFileCache(fileCacheKey, multipartFile.getBytes());
+
+                        queue.offer(fileCacheKey);
+                        files.add(file);
+                    } catch (IOException e02) {
+                        e02.printStackTrace();
+                    }
                 }
             }
         }
@@ -270,33 +277,74 @@ public class FileController {
             taskExecutor.execute(() -> {
                 OSS ossClient = ossUtil.getOSSClient();
 
+                List<String> fileNames = new ArrayList<>();
+
                 for (File file : files) {
 
                     String fileCacheKey = queue.poll();
-                    if (StringUtils.isNotBlank(fileCacheKey)) {
 
-                        if (redisUtil.cacheKeyExists(fileCacheKey)) { // key存在
-                            byte[] fileCache = redisUtil.getFileCache(fileCacheKey);
-                            redisUtil.removeFileCache(fileCacheKey);
-                            ossUtil.upload(ossClient, file.getRandomFileName(), file.getOldFileName(), fileCache);
+                    if (redisUtil.cacheKeyExists(fileCacheKey)) { // key存在 完整性校验
+                        byte[] fileCache = redisUtil.getFileCache(fileCacheKey); // get
+
+                        if (fileCache.length != file.getFileSize()) { // 不完整 get again
+                            fileCache = redisUtil.getFileCache(fileCacheKey);
                         }
+
+                        if (fileCache.length == file.getFileSize()) { // 完整-持久化
+                            ossUtil.upload(ossClient, file.getRandomFileName(), file.getOldFileName(), fileCache);
+                        } else { // 依旧不完整-移除
+                            fileNames.add(file.getRandomFileName());
+                        }
+
+                        redisUtil.removeFileCache(fileCacheKey);
+                    } else {
+                        fileNames.add(file.getRandomFileName());
                     }
+                }
+
+                if (fileNames.size() > 0) {
+                    taskExecutor.execute(() -> {
+                        for (String fileName : fileNames) {
+                            fileService.removeFileByRandomName(fileName);
+                        }
+                    }, 1000 * 60);
                 }
 
                 ossClient.shutdown();
             });
-
             return files;
         }
 
         return null;
     }
 
-    // 检车上传文件名是否合法
+    // 检查上传文件名是否合法
     public Boolean checkUploadFileName(String fileName) {
         final String format = "[^\\u4E00-\\u9FA5\\uF900-\\uFA2D\\w-_.,()（）《》]";
         Pattern pattern = Pattern.compile(format);
         Matcher matcher = pattern.matcher(fileName);
         return !matcher.find() && fileName.contains(".");
+    }
+
+    // 判断文件类型 1:文本类型   2:图像类型  3:视频类型  4:音乐类型  0:未知类型  -1:文件夹
+    public Integer getClassify(String type) {
+        if (".txt".equals(type) || ".doc".equals(type) || ".docx".equals(type)
+                || ".wps".equals(type) || ".word".equals(type) || ".html".equals(type) || ".pdf".equals(type)) {
+            return 1;
+        }
+        if (".bmp".equals(type) || ".gif".equals(type) || ".jpg".equals(type)
+                || ".pic".equals(type) || ".png".equals(type) || ".jpeg".equals(type) || ".webp".equals(type)
+                || ".svg".equals(type)) {
+            return 2;
+        }
+        if (".avi".equals(type) || ".mov".equals(type) || ".qt".equals(type)
+                || ".asf".equals(type) || ".rm".equals(type) || ".navi".equals(type) || ".wav".equals(type)
+                || ".mp4".equals(type)) {
+            return 3;
+        }
+        if (".mp3".equals(type) || ".wma".equals(type)) {
+            return 4;
+        }
+        return 0;
     }
 }

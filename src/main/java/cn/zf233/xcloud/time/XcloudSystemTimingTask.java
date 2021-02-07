@@ -1,7 +1,7 @@
 package cn.zf233.xcloud.time;
 
+import cn.zf233.xcloud.service.FileService;
 import cn.zf233.xcloud.service.UserService;
-import cn.zf233.xcloud.util.AspectLog;
 import cn.zf233.xcloud.util.RedisUtil;
 import cn.zf233.xcloud.util.RequestCounter;
 import org.slf4j.Logger;
@@ -17,20 +17,19 @@ import javax.annotation.Resource;
 @Component
 public class XcloudSystemTimingTask {
 
-    private final Logger logger = LoggerFactory.getLogger(AspectLog.class);
+    private final Logger logger = LoggerFactory.getLogger(XcloudSystemTimingTask.class);
 
     @Resource
     private UserService userService;
 
     @Resource
-    private RedisUtil redisUtil;
+    private FileService fileService;
 
     @Resource
-    private RequestCounter requestCounter;
+    private RedisUtil redisUtil;
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void refreshUserLevel() {
-
         // 刷新用户等级
         userService.refreshUserLevelTask();
     }
@@ -38,16 +37,23 @@ public class XcloudSystemTimingTask {
     @Scheduled(cron = "0 0 0 * * ?")
     public void clearUsersServerDetailCache() {
         userService.removeUserInfoOfRegistFailTask();
-
-        // 清空缓存
+        // 清空Redis缓存
         redisUtil.destroy();
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void clearOSSWildFile() {
+        // 清除无持久化记录
+        fileService.removeDBWildFile();
     }
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void requestCountLogging() {
         // 记录当天请求
-        logger.info(" ********TIMING TASK******* REQUEST COUNT ---------------> " + requestCounter.getRequestCount());
-        logger.info(" ********TIMING TASK******* REQUEST SUCCESS -------------> " + requestCounter.getRequestSuccessCount());
-        logger.info(" ********TIMING TASK******* REQUEST FAILURE -------------> " + requestCounter.getRequestFailureCount());
+        logger.info("#####################################################################");
+        logger.info(" ********TIMING TASK******* REQUEST COUNT ---------------> " + RequestCounter.getInstance().getRequestCount());
+        logger.info(" ********TIMING TASK******* REQUEST SUCCESS -------------> " + RequestCounter.getInstance().getRequestSuccessCount());
+        logger.info(" ********TIMING TASK******* REQUEST FAILURE -------------> " + RequestCounter.getInstance().getRequestFailureCount());
+        logger.info("#####################################################################");
     }
 }

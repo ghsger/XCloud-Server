@@ -21,7 +21,7 @@ public class OSSUtil {
     private String accessKeySecret;
     private String bucketName;
 
-    private static volatile OSS ossClient;
+    volatile private static OSS ossClient;
 
     public static synchronized OSS getOSSClientSingleton() {
         if (ossClient == null) {

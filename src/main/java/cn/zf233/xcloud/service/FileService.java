@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public interface FileService {
 
-    ServerResponse<List<FileVo>> home(User user, Integer parentId, Integer sortFlag, Integer sortType, String matchCode);
+    ServerResponse<List<FileVo>> home(User user, Integer parentId, Integer sortFlag, Integer sortType, String matchCode, Integer classify);
 
     ServerResponse saveFile(User user, List<File> files, String remark, Integer parentId) throws IOException;
 
@@ -26,10 +26,13 @@ public interface FileService {
 
     File getFileByFileId(Integer fileId, Integer userId);
 
+    void removeFileByRandomName(String randomFileName);
+
     ServerResponse getFileShareQrURL(Integer fileId, User user);
 
     List<AbsolutePath> getAbsolutePath(Integer userId, Integer parentId);
 
     void findChildParentId(Set<File> categorySet, Integer categoryId, Integer userId);
 
+    void removeDBWildFile();
 }

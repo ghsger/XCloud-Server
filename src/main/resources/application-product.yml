@@ -52,7 +52,6 @@ spring:
             port: 465
 mybatis:
   config-location: classpath:mybatis.xml
-#log4j2 需要可以打开 *(pom文件排除内置log,并添加log4j2依赖)
 #logging:
 #  config: classpath:log4j2.xml
 #  level:

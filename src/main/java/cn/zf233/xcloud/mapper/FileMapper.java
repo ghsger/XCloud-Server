@@ -11,11 +11,15 @@ public interface FileMapper {
 
     Integer deleteByPrimaryKey(Integer id);
 
+    Integer deleteByRandomFileName(String randomFileName);
+
     Integer insert(File file);
 
     File selectRootNodeOfUserByPrimaryKey(Integer userid);
 
     List<File> selectFilesByUserIDAndParentID(@Param(value = "userid") Integer userID, @Param(value = "parentid") Integer parentID);
+
+    List<File> selectFilesByUserIDAndClassify(@Param(value = "userid") Integer userID, @Param(value = "classify") Integer classify);
 
     List<File> selectFiles();
 

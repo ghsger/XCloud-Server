@@ -10,6 +10,7 @@
         <result column="old_file_name" jdbcType="VARCHAR" property="oldFileName"/>
         <result column="file_size" jdbcType="BIGINT" property="fileSize"/>
         <result column="file_type" jdbcType="VARCHAR" property="fileType"/>
+        <result column="classify" jdbcType="INTEGER" property="classify"/>
         <result column="remark" jdbcType="VARCHAR" property="remark"/>
         <result column="upload_time" jdbcType="BIGINT" property="uploadTime"/>
         <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
@@ -17,7 +18,7 @@
     <sql id="Base_Column_List">
         id
         , user_id, parent_id, folder, random_file_name, old_file_name, file_size,
-        file_type, remark, upload_time, update_time
+        file_type, classify, remark, upload_time, update_time
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -30,15 +31,21 @@
         from t_file
         where id = #{id,jdbcType=INTEGER}
     </delete>
+    <delete id="deleteByRandomFileName" parameterType="java.lang.Integer">
+        delete
+        from t_file
+        where random_file_name = #{randomFileName}
+    </delete>
     <insert id="insert" parameterType="cn.zf233.xcloud.entity.File">
         insert into t_file (id, user_id, parent_id,
         folder, random_file_name,
-        old_file_name, file_size, file_type,
+        old_file_name, file_size, file_type, classify,
         remark,
         upload_time, update_time)
         values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER},
         #{folder,jdbcType=INTEGER}, #{randomFileName,jdbcType=VARCHAR},
         #{oldFileName,jdbcType=VARCHAR}, #{fileSize,jdbcType=BIGINT}, #{fileType,jdbcType=VARCHAR},
+        #{classify,jdbcType=INTEGER},
         #{remark,jdbcType=VARCHAR},
         #{uploadTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
     </insert>
@@ -53,6 +60,12 @@
         <include refid="Base_Column_List"/>
         from t_file
         where user_id = #{userid} and parent_id = #{parentid}
+    </select>
+    <select id="selectFilesByUserIDAndClassify" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_file
+        where user_id = #{userid} and classify = #{classify} and folder = 0
     </select>
     <select id="selectFilesByUserIDAndMatchCode" resultMap="BaseResultMap">
         select
@@ -106,6 +119,9 @@
             </if>
             <if test="fileType != null">
                 file_type = #{fileType,jdbcType=VARCHAR},
+            </if>
+            <if test="classify != null">
+                classify = #{fileType,jdbcType=INTEGER},
             </if>
             <if test="remark != null">
                 remark = #{remark,jdbcType=VARCHAR},

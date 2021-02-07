@@ -58,7 +58,7 @@ public class UserController {
         }
 
         if (checkUserDetailOfApp(body.getUser())) {
-            return fileService.home(body.getUser(), body.getParentid(), body.getSortFlag(), body.getSortType(), body.getMatchCode());
+            return fileService.home(body.getUser(), body.getParentid(), body.getSortFlag(), body.getSortType(), body.getMatchCode(), null);
         }
 
         return ServerResponse.createByErrorIllegalArgument("登陆失效");
@@ -117,7 +117,7 @@ public class UserController {
     }
 
     // 注册检查 异步AJAX 响应Json (预留)
-    @RequestMapping(value = "/browse/check/info", method = RequestMethod.POST)
+    @RequestMapping(value = "/check/info", method = RequestMethod.POST)
     public @ResponseBody
     ServerResponse userInfoCheck(String requestBody) {
         RequestBody body = JsonUtil.toObject(requestBody, RequestBody.class);
@@ -141,7 +141,8 @@ public class UserController {
                                @RequestParam(required = false) Integer parentid,
                                @RequestParam(required = false) Integer sortFlag,
                                @RequestParam(required = false) Integer sortType,
-                               @RequestParam(required = false) String matchCode) {
+                               @RequestParam(required = false) String matchCode,
+                               @RequestParam(required = false) Integer classify) {
         UserVo userVo = (UserVo) session.getAttribute(Const.CURRENT_USER);
         if (userVo != null) {
 
@@ -152,10 +153,10 @@ public class UserController {
                 parentid = (Integer) session.getAttribute(Const.PARENTID);
             }
 
-            ServerResponse<List<FileVo>> homeResponse = fileService.home(user, parentid, sortFlag, sortType, matchCode);
+            ServerResponse<List<FileVo>> homeResponse = fileService.home(user, parentid, sortFlag, sortType, matchCode, classify);
             if (!homeResponse.isSuccess()) {
                 parentid = -1;
-                homeResponse = fileService.home(user, parentid, sortFlag, sortType, matchCode);
+                homeResponse = fileService.home(user, parentid, sortFlag, sortType, matchCode, classify);
             }
 
             UserVo userByPrimarykey = userService.getUserVoByPrimarykey(user.getId());

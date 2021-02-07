@@ -64,9 +64,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (userInfo != null) {
-
             if (userInfo.getRole() == -1) {
-
                 return ServerResponse.createByErrorCodeMessage(
                         Const.CheckEmailENUM.NOT_CHECK.getCode(),
                         "登陆失败(已注册-邮箱未验证)",
@@ -74,7 +72,6 @@ public class UserServiceImpl implements UserService {
             }
 
             if (userInfo.getRole() == 1) {
-
                 return ServerResponse.createByErrorMessage("账户被锁定");
             }
 
@@ -101,6 +98,19 @@ public class UserServiceImpl implements UserService {
             user.setGrowthValue(0);
             user.setCreateTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
             user.setUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
+
+            if (StringUtils.isNotBlank(user.getHeadUrl())) {
+                if (!user.getHeadUrl().contains("https")) {
+                    if (user.getHeadUrl().contains("http")) {
+                        user.setHeadUrl(user.getHeadUrl().replace("http", "https"));
+                    }
+                }
+            }
+
+            if (StringUtils.isBlank(user.getHeadUrl())) {
+                user.setHeadUrl(Const.DEFAULT_USER_HEAD_URL);
+            }
+
             int flagOfInsert = userMapper.insert(user);
             if (flagOfInsert > 0) {
                 File file = assembleRootNodeOfRegistUser(user);
@@ -114,6 +124,13 @@ public class UserServiceImpl implements UserService {
         if (userInfo.getRole() == 1) {
 
             return ServerResponse.createByErrorMessage("账户被锁定");
+        }
+
+        if (StringUtils.isNotBlank(userInfo.getHeadUrl()) && StringUtils.isNotBlank(user.getHeadUrl())) {
+            if (!userInfo.getHeadUrl().equals(user.getHeadUrl())) {
+                userInfo.setHeadUrl(user.getHeadUrl());
+                userMapper.updateByPrimaryKeySelective(userInfo);
+            }
         }
 
         return ServerResponse.createBySuccess("登陆成功", assembleUserVoDetail(userInfo));
@@ -166,6 +183,7 @@ public class UserServiceImpl implements UserService {
             return ServerResponse.createByErrorMessage("用户已存在");
         }
 
+        user.setHeadUrl(Const.DEFAULT_USER_HEAD_URL);
         user.setNickname(StringUtils.isBlank(user.getNickname()) ? user.getUsername() : user.getNickname());
         user.setPassword(DigestUtils.md5DigestAsHex((Const.DOMAIN_NAME + user.getPassword()).getBytes()));
         user.setRole(-1);
@@ -179,11 +197,12 @@ public class UserServiceImpl implements UserService {
 
             File rootNode = assembleRootNodeOfRegistUser(user);
             fileMapper.insert(rootNode);
+
             String uuid = UUID.randomUUID().toString();
             redisUtil.set(Const.USER_UUID_KEY_PREFIX + user.getId(), uuid);
             try {
 
-                sendCodeForUserRegist(user.getEmail(),
+                sendEmail(user.getEmail(),
                         "XCloud 邮箱验证",
                         user.getNickname(),
                         "点我以完成XCloud账号注册，XCloud致力于保护您的隐私，您的满意是我们前进的动力。",
@@ -202,6 +221,7 @@ public class UserServiceImpl implements UserService {
 
     // 检查验证邮件是否正确
     @Override
+    @Transactional
     public ServerResponse checkRegistUser(User user, String UUID) {
         if (user.getId() == null || user.getId() < 0) {
             return ServerResponse.createByErrorMessage("用户ID有误");
@@ -223,15 +243,20 @@ public class UserServiceImpl implements UserService {
         String redisKey = Const.USER_UUID_KEY_PREFIX + user.getId();
         Long registUserUUIDTimeOut = redisUtil.getTimeOutOfKey(redisKey);
         if (registUserUUIDTimeOut > 0) {
+
             String registUserUUID = redisUtil.get(redisKey);
             if (StringUtils.isNotBlank(registUserUUID) && StringUtils.isNotBlank(UUID)) {
+
                 if (UUID.equals(registUserUUID)) {
+
                     userInfo.setRole(0);
                     int registFlag = userMapper.updateByPrimaryKeySelective(userInfo);
                     if (registFlag > 0) {
                         redisUtil.remove(redisKey);
                         return ServerResponse.createBySuccessMessage("邮箱验证成功(注册成功)");
                     }
+
+                    return ServerResponse.createBySuccessMessage("注册失败");
                 }
             }
         }
@@ -257,7 +282,7 @@ public class UserServiceImpl implements UserService {
 
         String redisKey = Const.USER_UUID_KEY_PREFIX + user.getId();
         Long timeOut = redisUtil.getTimeOutOfKey(redisKey);
-        if (timeOut - 20 > 0) {
+        if (timeOut - 5 > 0) {
             return ServerResponse.createByErrorCodeMessage(
                     Const.CheckEmailENUM.UUID_EXISTS.getCode(),
                     "发送的太频繁," + timeOut + "秒后继续");
@@ -268,7 +293,7 @@ public class UserServiceImpl implements UserService {
         redisUtil.set(redisKey, uuid);
 
         try {
-            sendCodeForUserRegist(userInfo.getEmail(),
+            sendEmail(userInfo.getEmail(),
                     "XCloud 邮箱验证",
                     userInfo.getNickname(),
                     "点我以完成XCloud账号注册，XCloud致力于保护您的隐私，您的满意是我们前进的动力。",
@@ -348,7 +373,7 @@ public class UserServiceImpl implements UserService {
                 redisUtil.remove(Const.USER_UUID_KEY_PREFIX + user.getId());
 
                 try {
-                    sendCodeForUserRegist(user.getEmail(),
+                    sendEmail(user.getEmail(),
                             "XCloud 用户提醒",
                             user.getNickname(),
                             "您的邮箱仍未验证，系统已安全的移除您的信息，XCloud致力于保护您的隐私，您的满意是我们前进的动力。",
@@ -367,11 +392,11 @@ public class UserServiceImpl implements UserService {
     }
 
     // 异步发送邮箱验证邮件
-    public void sendCodeForUserRegist(String to,
-                                      String title,
-                                      String nickname,
-                                      String contentOfPage,
-                                      String url) throws MessagingException {
+    public void sendEmail(String to,
+                          String title,
+                          String nickname,
+                          String contentOfPage,
+                          String url) throws MessagingException {
 
         Context context = new Context();
 
@@ -406,6 +431,8 @@ public class UserServiceImpl implements UserService {
     // 组装用户展示对象
     private UserVo assembleUserVoDetail(User user) {
         UserVo userVo = new UserVo();
+
+        userVo.setHeadUrl(user.getHeadUrl());
         userVo.setId(user.getId());
         userVo.setEmail(user.getEmail());
         userVo.setUsername(user.getUsername());

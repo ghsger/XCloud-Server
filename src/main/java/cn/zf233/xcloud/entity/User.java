@@ -10,6 +10,8 @@ public class User implements Serializable {
 
     private String openId;
 
+    private String headUrl;
+
     private String email;
 
     private String username;
@@ -35,9 +37,10 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(Integer id, String openId, String email, String username, String nickname, String password, String question, String answer, Integer role, Integer level, Integer growthValue, Long createTime, Long updateTime) {
+    public User(Integer id, String openId, String headUrl, String email, String username, String nickname, String password, String question, String answer, Integer role, Integer level, Integer growthValue, Long createTime, Long updateTime) {
         this.id = id;
         this.openId = openId;
+        this.headUrl = headUrl;
         this.email = email;
         this.username = username;
         this.nickname = nickname;
@@ -49,6 +52,10 @@ public class User implements Serializable {
         this.growthValue = growthValue;
         this.createTime = createTime;
         this.updateTime = updateTime;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     public Integer getId() {
@@ -65,6 +72,14 @@ public class User implements Serializable {
 
     public void setOpenId(String openId) {
         this.openId = openId;
+    }
+
+    public String getHeadUrl() {
+        return headUrl;
+    }
+
+    public void setHeadUrl(String headUrl) {
+        this.headUrl = headUrl;
     }
 
     public String getEmail() {

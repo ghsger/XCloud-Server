@@ -1,9 +1,11 @@
 package cn.zf233.xcloud.web;
 
 import cn.zf233.xcloud.commom.Const;
+import cn.zf233.xcloud.commom.RequestBody;
 import cn.zf233.xcloud.commom.ServerResponse;
 import cn.zf233.xcloud.entity.User;
 import cn.zf233.xcloud.service.UserService;
+import cn.zf233.xcloud.util.JsonUtil;
 import cn.zf233.xcloud.vo.UserVo;
 import com.qq.connect.QQConnectException;
 import com.qq.connect.api.OpenID;
@@ -32,7 +34,6 @@ public class QQController {
 
     @RequestMapping("/qq/login")
     public String login(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-
         try {
             response.setContentType("text/html;charset=utf-8");
             String authorizeURL = new Oauth().getAuthorizeURL(request);
@@ -40,20 +41,26 @@ public class QQController {
         } catch (QQConnectException e) {
             session.setAttribute(Const.SessionAttributeCode.NOTICE_TITLE, "点此返回");
             session.setAttribute(Const.SessionAttributeCode.NOTICE_BACK, "user/browse/jump?jump=login");
-
             return "redirect:/user/browse/jump?jump=notice";
         }
     }
 
     // XCloud App QQ登陆接口(预留)
     @RequestMapping("qq/login/phone")
-    public ServerResponse loginOfPhone(String openId, String nickname) {
-        if (StringUtils.isBlank(openId) || StringUtils.isBlank(nickname)) {
-            return ServerResponse.createByErrorMessage("登陆失败");
+    public ServerResponse loginOfPhone(String openId, String requestBody) {
+        RequestBody body = JsonUtil.toObject(requestBody, RequestBody.class);
+        if (body == null) {
+            return ServerResponse.createByErrorIllegalArgument();
         }
+
+        if (StringUtils.isBlank(openId) || StringUtils.isBlank(body.getUser().getNickname())) {
+            return ServerResponse.createByErrorMessage("登陆/注册失败");
+        }
+
         User user = new User();
         user.setOpenId(openId);
-        user.setNickname(removeNonBmpUnicode(nickname));
+        user.setNickname(removeNonBmpUnicode(body.getUser().getNickname()));
+
         return userService.qqLogin(user);
     }
 
@@ -87,8 +94,8 @@ public class QQController {
             if (userInfoBean.getRet() == 0) { // 成功获取到用户qzone信息
                 User user = new User();
                 user.setOpenId(openId);
+                user.setHeadUrl(userInfoBean.getAvatar().getAvatarURL100());
                 user.setNickname(removeNonBmpUnicode(userInfoBean.getNickname()));
-
                 ServerResponse<UserVo> resp = userService.qqLogin(user);
                 if (resp.isSuccess()) { // 登陆或快速注册成功
                     session.setAttribute(Const.CURRENT_USER, resp.getData());
@@ -112,11 +119,13 @@ public class QQController {
         if (str == null) {
             return null;
         }
+
         str = str.replaceAll("[^\\u0000-\\uFFFF]", "");
 
         if ("".equals(str)) {
             str = "($ _ $)";
         }
+
         return str;
     }
 }

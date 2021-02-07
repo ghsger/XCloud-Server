@@ -45,7 +45,8 @@ public class FileServiceImpl implements FileService {
                                              Integer parentId,
                                              Integer sortFlag,
                                              Integer sortType,
-                                             String matchCode) {
+                                             String matchCode,
+                                             Integer classify) {
         List<File> files;
 
         if (parentId == null || parentId == -1) {
@@ -62,7 +63,6 @@ public class FileServiceImpl implements FileService {
 
         List<AbsolutePath> absolutePath = null;
         if (StringUtils.isNotBlank(matchCode)) { // 模糊搜索
-
             files = fileMapper.selectFilesByUserIDAndMatchCode(user.getId(), matchCode);
         } else if (sortFlag != null) { // 排序
 
@@ -72,8 +72,13 @@ public class FileServiceImpl implements FileService {
             } else { // 降序
                 files = fileMapper.selectFilesByUserIDAndParentIDSortByTypeAsce(user.getId(), parentId, Const.SortFieldENUM.fieldOf(sortFlag).getField());
             }
+        } else if (classify != null) {
+            if (Const.ClassifyENUM.exists(classify)) {
+                files = fileMapper.selectFilesByUserIDAndClassify(user.getId(), classify);
+            } else {
+                files = fileMapper.selectFilesByUserIDAndParentID(user.getId(), parentId);
+            }
         } else { // 直接显示
-
             files = fileMapper.selectFilesByUserIDAndParentID(user.getId(), parentId);
             absolutePath = getAbsolutePath(user.getId(), parentId);
         }
@@ -99,23 +104,18 @@ public class FileServiceImpl implements FileService {
         }
 
         if (parentId == null || parentId == -1) {
-
             File rootNode = fileMapper.selectRootNodeOfUserByPrimaryKey(user.getId());
             parentId = rootNode.getId();
         } else {
-
             File fileOfParentId = fileMapper.selectByPrimaryKey(parentId);
             if (fileOfParentId == null) {
-                return ServerResponse.createByErrorIllegalArgument("文件夹不存在,下拉以刷新");
+                return ServerResponse.createByErrorIllegalArgument("文件夹不存在,请刷新");
             }
         }
 
         for (File file : files) {
             file.setParentId(parentId);
-            Integer resultFlag = fileMapper.insert(file);
-            if (resultFlag < 0) {
-                ossUtil.delete(ossClient, file.getRandomFileName());
-            }
+            fileMapper.insert(file);
         }
 
         userService.updateUserGrowthValueByPrimaryKey(user.getId());
@@ -147,6 +147,7 @@ public class FileServiceImpl implements FileService {
         file.setOldFileName(folderName);
         file.setUserId(user.getId());
         file.setFolder(1);
+        file.setClassify(0);
         file.setUploadTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
         file.setUpdateTime(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
 
@@ -175,7 +176,6 @@ public class FileServiceImpl implements FileService {
             Set<File> filesSet = new HashSet<>();
             findChildParentId(filesSet, fileId, user.getId());
             for (File file : filesSet) {
-
                 if (file.getFolder() == 0) {
 
                     if (ossUtil.objectNameExists(ossClient, file.getRandomFileName())) {
@@ -203,6 +203,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @Transactional
+    public void removeFileByRandomName(String randomFileName) {
+        if (StringUtils.isNotBlank(randomFileName)) {
+            fileMapper.deleteByRandomFileName(randomFileName);
+        }
+    }
+
+    @Override
     public ServerResponse getFileShareQrURL(Integer fileId, User user) {
         if (fileId != null) {
 
@@ -211,7 +219,6 @@ public class FileServiceImpl implements FileService {
 
                 java.io.File folder = new java.io.File(Const.SHARE_QR_REAL_PATH);
                 if (!folder.exists()) {
-
                     if (!folder.mkdir()) {
                         return ServerResponse.createByErrorMessage("分享失败");
                     }
@@ -262,6 +269,23 @@ public class FileServiceImpl implements FileService {
         for (File file : filesOfParentId) {
             findChildParentId(filesSet, file.getId(), userId);
         }
+    }
+
+    @Override
+    @Transactional
+    public void removeDBWildFile() {
+        List<File> files = fileMapper.selectFiles();
+        OSS ossClient = ossUtil.getOSSClient();
+
+        for (File file : files) {
+            if (file.getFolder() == 0) {
+                if (!ossUtil.objectNameExists(ossClient, file.getRandomFileName())) {
+                    fileMapper.deleteByPrimaryKey(file.getId());
+                }
+            }
+        }
+
+        ossClient.shutdown();
     }
 
     // 递归查询所在parentId所在路径

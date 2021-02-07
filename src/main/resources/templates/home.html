@@ -1,42 +1,36 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>XCloud</title>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="XCloud XCloud.show-简约方便的在线存储网站,支持桌面(浏览器)、移动端(APP)随存随取"/>
     <meta name="keywords" content="XCloud,xcloud,网络存储,云存储,在线存储,网盘,云盘,文件服务,后端开发"/>
     <base href="https://www.xcloud.show/xcloud/">
-    <!--<base href="http://localhost:8080/xcloud/">-->
+    <!-- <base href="http://localhost:8080/xcloud/"> -->
+    <title>XCloud</title>
     <link rel="shortcut icon" type="image/x-icon" href="https://www.xcloud.show/static/img/favicon.ico">
-    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/index.css">
-    <link type="text/css" rel="stylesheet" href="https://www.xcloud.show/static/css/login_regist_css.css">
+    <link rel="stylesheet" href="https://www.xcloud.show/static/css/framework/bootstrap/css/bootstrap.min.css">
     <script type="text/javascript" src="https://www.xcloud.show/static/js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="https://www.xcloud.show/static/js/home.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             width: 100%;
             height: 100%;
-            background-image: linear-gradient(to top right, rgba(224, 73, 13, 0.4), rgba(4, 149, 245, 0.5));
             background-repeat: no-repeat;
             background-size: 100% 100%;
             background-attachment: fixed;
-        }
-
-        #upload_div {
-            text-align: center;
-            background-color: rgb(223, 224, 225);
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 5px 10px 5px 10px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 24px;
+            font-family: "微软雅黑";
         }
 
         table tbody {
             display: block;
-            height: 320px;
+            height: 440px;
             overflow-y: scroll;
         }
 
@@ -47,198 +41,255 @@
             table-layout: fixed;
         }
 
-        table tbody tr:hover {
-            background-color: rgb(223, 224, 225);
-        }
-
-        table thead {
-            width: calc(100% - 1em)
-        }
-
         table thead th {
             background: #ccc;
         }
 
-        input {
-            outline: none;
+        .navbar {
+            min-height: 45px;
+        }
+
+        .nav > li > a {
+            padding: 8px 15px;
+        }
+
+        .navbar-brand {
+            padding: 8px 15px;
+        }
+
+        a {
+            COLOR: #2d2f31;
+            TEXT-DECORATION: none
         }
     </style>
 </head>
 <body>
-<div class="head">
-    <a href="user/browse/home">
-        <div class="logo">
-            <img class='pic' src='https://www.xcloud.show/static/img/logo.png' style="height: 40px;">
+<div class="row">
+    <div class="navbar navbar-custom col-xs-12" style="height: 30px;">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="user/browse/home">
+                   <span class="navbar-logo">
+                       <img src="https://www.xcloud.show/static/img/logo.png" style="height: 40px;">
+                       <img src="https://www.xcloud.show/static//img/logo2.png" style="height: 30px;">
+                   </span>
+            </a>
         </div>
-        <div class="logo02">
-            <img class='pic' src='https://www.xcloud.show/static//img/logo2.png' style="height: 30px;">
-        </div>
-    </a>
-    <div class="nav02">
-        <ul>
-            <div class="user">
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right" style="margin-top: 5px;">
                 <li>
-                    欢迎&nbsp;
-                    <a href="user/browse/jump?jump=user_detail" style="font-size: 15px">
-                        <span th:text="${session.currentUser.username}"></span>
-                    </a>&nbsp;
-                    Lv<span style="color: #ff7202" th:text="${session.currentUser.level}"></span>
+                    <a href="user/browse/jump?jump=user_detail">
+                        <img th:src="${session.currentUser.headUrl}" class="img-circle"
+                             style="height: 33px; width: 33px;">
+                    </a>
                 </li>
-            </div>
-            <div class="regist">
-                <li><a href="user/browse/logout">注销</a></li>
-            </div>
-        </ul>
-    </div>
-</div>
-
-<div id="path">
-    <span id="path01">
-        <a href="user/browse/home?parentid=-1">root&nbsp;/</a>
-        <span th:each="absolute:${session.absolutePath}">
-            <a th:href="'user/browse/home?parentid=' + ${absolute.parentid}"><span
-                    th:text="${absolute.folderName} + ' ' + '/'"></span></a>
-        </span>
-    </span>
-    <span id="path02">
-        <form action="user/browse/home" method="post" style="height: 15px">
-            <input type="text" name="matchCode" id="fuzzySelect" placeholder="检索关键字"
-                   style="background: transparent;border:1px solid rgba(0, 5, 20, 0.2)">
-            <input type="submit" id="fuzzySelect_button" style="display: none">
-        </form>
-    </span>
-</div>
-<div class="main01" th:if="${!session.fileVos.isEmpty()}">
-    <hr>
-    <br>
-    <table align="center" style="min-width:900px">
-        <thead style="font-size: 18px; font-style: italic">
-        <tr>
-            <td align="center">
-                序号
-            </td>
-            <td align="center">
-                名称<a href="user/browse/home?sortFlag=0&sortType=0">▲</a><a
-                    href="user/browse/home?sortFlag=0&sortType=1">▼</a>
-            </td>
-            <td align="center">
-                类型<a href="user/browse/home?sortFlag=1&sortType=0">▲</a><a
-                    href="user/browse/home?sortFlag=1&sortType=1">▼</a>
-            </td>
-            <td align="center">
-                大小<a href="user/browse/home?sortFlag=2&sortType=0">▲</a><a
-                    href="user/browse/home?sortFlag=2&sortType=1">▼</a>
-            </td>
-            <td align="center">
-                上传时间<a href="user/browse/home?sortFlag=3&sortType=0">▲</a><a
-                    href="user/browse/home?sortFlag=3&sortType=1">▼</a>
-            </td>
-            <td align="center">
-                备注
-            </td>
-            <td align="center">
-
-            </td>
-        </tr>
-        </thead>
-        <tbody style="font-size: 15px">
-        <tr th:each="file,fileStat:${session.fileVos}" th:class="${file.folder eq 0 ? 'fileItem' : 'folderItem'}">
-            <td th:text="${fileStat.index + 1}" style="text-align: center;"></td>
-            <td th:text="${file.fileName}"
-                style="text-align: left; white-space: nowrap;text-overflow: ellipsis;overflow: hidden;"></td>
-            <td th:if="${file.fileType == null}" style="text-align: center;">
-                <span>文件夹</span>
-            </td>
-            <td th:if="${file.fileType != null}" style="text-align: center;">
-                <span th:text="${file.fileType}"></span>
-            </td>
-            <td th:if="${file.fileSize == null}" style="text-align: center;">
-                <span></span>
-            </td>
-            <td th:if="${file.fileSize != null}" style="text-align: center;">
-                <span th:text="${file.fileSize}"></span>
-            </td>
-            <td th:text="${file.uploadTime}" style="text-align: center;"></td>
-            <td th:if="${file.remark == null}" style="text-align: center;">
-                <span></span>
-            </td>
-            <td th:if="${file.remark != null}" style="text-align: center;">
-                <span th:text="${file.remark}"></span>
-            </td>
-            <td align="center" th:if="${file.folder eq 0}">
-                <input type="checkbox" class="fileCheckBox" th:value="${file.id}" name="fileid">&nbsp;
-                <input type="hidden" class="fileCheckBoxURL" th:value="${file.downloadURL}">
-                <a href="javascript:void(null);" class="share_A" th:id="${file.id}">分享</a>
-            </td>
-            <td align="center" th:if="${file.folder eq 1}">
-                <input type="checkbox" class="folderCheckBox" th:value="${file.id}" name="fileid">&nbsp;
-                <a th:href="'user/browse/home?parentid=' + ${file.id}">打开</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <span style="float:left;position:absolute;bottom:20px;right:30px;text-align:right;font-size: 14px;">
-        <a id="selectAll" href="javascript:void(null);">全选</a>
-        <a id="deleteSelectAll" href="javascript:void(null);">删除</a>
-        <a id="downloadSelectAll" href="javascript:void(null);">下载</a>
-    </span>
-    <div id="outerdiv"
-         style="position:fixed;top:0;left:0;background:rgba(0,0,0,0.7);z-index:2;width:100%;height:100%;display:none;">
-        <div id="innerdiv" style="position:absolute;">
-            <img id="bigimg" style="border:5px solid #fff;" src=""/></br>
-            <span style="font-size: 20px; color: white;">扫一扫，获取分享文件🤔</span>
+                <li>
+                    <div style="margin-top: 20px;">
+                        <span th:text="${session.currentUser.username}">Admin</span>&nbsp;
+                        <span th:text="${'Lv ' + session.currentUser.level}" style="color: rgb(197, 143, 73);"> 1</span>
+                    </div>
+                </li>
+                <li>
+                    <a href="user/browse/logout">
+                        <button class="btn btn-info">注销</button>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
-<div class="main01" th:if="${session.fileVos.isEmpty()}">
-    <hr>
-    <br>
-    <table align="center" style="min-width:900px">
-        <h2>空空如也，快去上传吧</h2>
-    </table>
-</div>
-<hr>
-<div class="main02">
-    <div id="upload_div">
-        <form action="file/browse/upload" method="post" enctype="multipart/form-data">
-            <span style="font-size: 12px">限制上传文件大小(200MB)</span>
-            <input name="myFile" id="select_file" type="file" multiple="multiple"
-                   style="width: 200px; background: transparent; border: none;"/>
-            <input type="text" name="remark" id="remark"
-                   style="width: 200px; background: transparent; border:1px solid rgba(0, 5, 20, 0.2)"
-                   placeholder="备注(长度20,超出截断)"/>
-            <input type="button" id="delete_remark" value="清空"
-                   style="color: red; background: transparent; border: none;"/>
-            <input type="hidden" name="parentid" th:value="${session.parentid}">
-            <input type="submit" value="确认上传" id="file_submit"
-                   style="background: transparent; border: none;">
-        </form>
-        <form action="file/browse/createfolder" method="post">
-            <span style="font-size: 12px">新建文件夹</span>
-            <input type="hidden" name="parentid" th:value="${session.parentid}">
-            <input id="folderName" type="text" placeholder="文件夹名" name="foldername"
-                   style="background: transparent;border:1px solid rgba(0, 5, 20, 0.2)"/>
-            <input id="createFolder" type="submit" value="创建"
-                   style="background: transparent; border: none;">
-        </form>
-        <span style="font-size: 15px;">
-                <strong th:text="${session.currentUser.username}"></strong>&nbsp;
-                <strong>容量</strong>
-                <progress th:value="${session.currentUser.useCapacity}"
-                          th:max="${session.currentUser.level * 10}"></progress>
-                <span id="useCapacity" style="font-size: 10px" th:text="${session.currentUser.useCapacity}"></span>
-                <span style="font-size: 10px">/</span>
-                <span id="maxCapacity" style="font-size: 10px" th:text="${session.currentUser.level * 10}"></span>
-            </span>
+<div class="row">
+    <div class="col-xs-12" style="height: 2px; border-top: 2px rgb(242,242,242) solid;">
     </div>
 </div>
-<br>
-<div class="foot">
-    <span style="color: black">
-        <p>Copyright &copy;&nbsp;XCloud·V4.7.5&nbsp;2021</p>
-        <p>xcloud.show&nbsp;All Rights Reserved·</p>
-        <p><a href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-3</a></p>
-    </span>
+<div id="outerdiv"
+     style="position:fixed;top:0;left:0;background:rgba(0,0,0,0.7);z-index:2;width:100%;height:100%;display:none;">
+    <div id="innerdiv" style="position:absolute;">
+        <img id="bigimg" style="border:5px solid #fff;" src=""/></br>
+        <span style="font-size: 20px; color: white;margin-left: 40px;">扫一扫📱，获取分享文件</span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-2" style="border-right: 1px rgb(242,242,242) solid;">
+        <div class="col-md-offset-3 col-lg-offset-4 col-xl-offset-2">
+            <ul class="nav nav-stacked" style="width: 100px; text-align: center;">
+                <li><br></li>
+                <li class="active"><a href="user/browse/home?parentid=-1">全部文件</a></li>
+                <li><br></li>
+                <li><a href="user/browse/home?parentid=-1&classify=2"><span class="glyphicon glyphicon-picture" style="color: rgb(117, 191, 219);; font-size: 14px;"></span>&nbsp;图片</a></li>
+                <li><br></li>
+                <li><a href="user/browse/home?parentid=-1&classify=4"><span class="glyphicon glyphicon-music" style="color: rgb(117, 191, 219);; font-size: 14px;"></span>&nbsp;音乐</a></li>
+                <li><br></li>
+                <li><a href="user/browse/home?parentid=-1&classify=3"><span class="glyphicon glyphicon-film" style="color: rgb(117, 191, 219);; font-size: 14px;"></span>&nbsp;视频</a></li>
+                <li><br></li>
+                <li><a href="user/browse/home?parentid=-1&classify=1"><span class="glyphicon glyphicon-book" style="color: rgb(117, 191, 219);; font-size: 14px;"></span>&nbsp;文档</a></li>
+                <li><br></li>
+                <li><a href="user/browse/home?parentid=-1&classify=-1"><span class="glyphicon glyphicon-warning-sign" style="color: rgb(117, 191, 219);; font-size: 14px;"></span>&nbsp;其他</a></li>
+            </ul>
+        </div>
+        <div class="col-md-offset-3 col-lg-offset-4 col-xl-offset-2" style="margin-top: 200px;">
+            <span class="glyphicon glyphicon-floppy-disk" style="color: rgb(66, 73, 72); font-size: 14px;"></span>
+            <progress th:value="${session.currentUser.useCapacity}" th:max="${session.currentUser.level * 10}"
+                      style="width: 100px;"></progress>
+            <div style="font-size: 10px; color: rgb(49, 48, 47);">
+                <span th:text="${session.currentUser.useCapacity}">3</span>&nbsp;/&nbsp;<span
+                    th:text="${session.currentUser.level * 10}">10</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-10">
+        <div class="row" style="height: 10px;"></div>
+        <div class="row">
+            <nav class="navbar navbar-btn">
+                <div class="container">
+                    <div class="navbar-header">
+
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <form class="form" action="file/browse/upload" method="post"
+                                      enctype="multipart/form-data">
+                                    <label for="select_file" class="btn"><span class="glyphicon glyphicon-plus" style="color: rgb(20, 14, 89); font-size: 14px;"></span></label>
+                                    <input name="myFile" id="select_file" type="file" style="display: none;"
+                                           multiple="multiple"/>
+                                    <input type="hidden" name="parentid" th:value="${session.parentid}"/>
+                                    <input id="file_submit" class="btn btn-info" type="submit" value="上传"></input>
+                                </form>
+                            </li>
+                            <li>
+                                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <div class="btn-group">
+                                    <button id="selectAll" class="btn btn-warning">全选</button>
+                                    <button id="deleteSelectAll" class="btn btn-danger"><span class="glyphicon glyphicon-trash" style="color: rgb(255,255,255); font-size: 14px;"></span></button>
+                                    <button id="downloadSelectAll" class="btn btn-primary"><span class="glyphicon glyphicon-save" style="color: rgb(255,255,255); font-size: 14px;"></span></button>
+                                </div>
+                            </li>
+                            <li>
+                                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <div class="btn-group">
+                                    <form class="form-search" action="file/browse/createfolder" method="post">
+                                        <div class="input-append">
+                                            <input type="hidden" name="parentid" th:value="${session.parentid}">
+                                            <input id="folderName" type="text" class="span2 search-query"
+                                                   placeholder="文件夹名" name="foldername">
+                                            <button id="createFolder" type="submit" class="btn btn-info"><span class="glyphicon glyphicon-ok" style="color: rgb(255,255,255); font-size: 14px;"></span></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            <li>
+                                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <div class="nav navbar-right" style="margin-top:5px">
+                            <form class="form-search" action="user/browse/home" method="post">
+                                <input class="text-field" type="text" name="matchCode" id="fuzzySelect"
+                                       placeholder="Search">
+                                <input type="submit" id="fuzzySelect_button" style="display: none">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="row">
+            <div class="container">
+                <ul class="breadcrumb">
+                    <li><a href="user/browse/home?parentid=-1"><span class="glyphicon glyphicon-home" style=" font-size: 14px;color: rgb(117, 191, 219);"></span></a><span class="divider"></span></li>
+                    <li th:each="absolute:${session.absolutePath}">
+                        <a th:href="'user/browse/home?parentid=' + ${absolute.parentid}"
+                           th:text="${absolute.folderName}"></a>
+                        <span class="divider"></span>
+                    </li>
+                    <li>
+                        <span class="divider"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="container">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr style="background-color: rgb(187, 230, 241);font-size: 15px;">
+                        <td><span class="glyphicon glyphicon-ok" style="color: rgb(255,255,255);"></span></td>
+                        <td colspan="2">名称 <a href="user/browse/home?sortFlag=0&sortType=0"><span class="glyphicon glyphicon-sort-by-alphabet" style="color: rgb(20, 14, 89);font-size: 12px;"></span></a>&nbsp;
+                            <a href="user/browse/home?sortFlag=0&sortType=1"><span class="glyphicon glyphicon-sort-by-alphabet-alt" style="color: rgb(20, 14, 89); font-size: 12px;"></span></a></td>
+                        <td>类型 <a href="user/browse/home?sortFlag=1&sortType=0"><span class="glyphicon glyphicon-sort-by-alphabet" style="color: rgb(20, 14, 89);font-size: 12px;"></span></a>&nbsp;<a
+                                href="user/browse/home?sortFlag=1&sortType=1"><span class="glyphicon glyphicon-sort-by-alphabet-alt" style="color: rgb(20, 14, 89); font-size: 12px;"></span></a></td>
+                        <td>大小 <a href="user/browse/home?sortFlag=2&sortType=0"><span class="glyphicon glyphicon-sort-by-alphabet" style="color: rgb(20, 14, 89);font-size: 12px;"></span></a>&nbsp;<a
+                                href="user/browse/home?sortFlag=2&sortType=1"><span class="glyphicon glyphicon-sort-by-alphabet-alt" style="color: rgb(20, 14, 89); font-size: 12px;"></span></a></td>
+                        <td colspan="2">上传时间<a href="user/browse/home?sortFlag=3&sortType=0"><span class="glyphicon glyphicon-sort-by-alphabet" style="color: rgb(20, 14, 89);font-size: 12px;"></span></a>&nbsp;<a
+                                href="user/browse/home?sortFlag=3&sortType=1"><span class="glyphicon glyphicon-sort-by-alphabet-alt" style="color: rgb(20, 14, 89); font-size: 12px;"></span></a></td>
+                        <td><span class="glyphicon glyphicon-cog" style="color: rgb(255,255,255);"></span></td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${session.fileVos.isEmpty()}">
+                        <td>空空如也</td>
+                    </tr>
+                    <tr th:each="file,fileStat:${session.fileVos}"
+                        th:class="${file.folder eq 0 ? 'fileItem' : 'folderItem'}">
+                        <td th:if="${file.folder eq 0}">
+                            <input type="checkbox" class="fileCheckBox" th:value="${file.id}" name="fileid">&nbsp;
+                            <input type="hidden" class="fileCheckBoxURL" th:value="${file.downloadURL}">
+                        </td>
+                        <td th:if="${file.folder eq 1}">
+                            <input type="checkbox" class="folderCheckBox" th:value="${file.id}" name="fileid">&nbsp;
+                        </td>
+                        <td colspan="2" th:text="${file.fileName}"
+                            style="text-align: left; white-space: nowrap;text-overflow: ellipsis;overflow: hidden;"></td>
+                        <td th:if="${file.fileType == null}">
+                            <span>文件夹</span>
+                        </td>
+                        <td th:if="${file.fileType != null}">
+                            <span th:text="${file.fileType}"></span>
+                        </td>
+                        <td th:if="${file.fileSize == null}">
+                            <span></span>
+                        </td>
+                        <td th:if="${file.fileSize != null}">
+                            <span th:text="${file.fileSize}"></span>
+                        </td>
+                        <td th:text="${file.uploadTime}" colspan="2"></td>
+                        <td th:if="${file.folder eq 0}">
+                            <a href="javascript:void(null);" class="share_A" th:id="${file.id}">
+                                <span class="glyphicon glyphicon-send" style="color: rgb(20, 14, 89); font-size: 14px;"></span>
+                            </a>
+                        </td>
+                        <td th:if="${file.folder eq 1}">
+                            <a th:href="'user/browse/home?parentid=' + ${file.id}">
+                                <span class="glyphicon glyphicon-folder-open" style="color: rgb(20, 14, 89); font-size: 14px;"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row" style="border-top: 1px rgb(242,242,242) solid;">
+            <div class="navbar navbar-btn" style="min-height: 15px;">
+                <div class="container">
+                    <div id="navbar" class="navbar-collapse collapse" style="min-height: 15px;">
+                        <div class="nav navbar-right" style="min-height: 15px;">
+                        <span style="color: black">
+                            <p>Copyright &copy;&nbsp;XCloud&nbsp;2021&nbsp;All Rights Reserved·<a
+                                    href="https://beian.miit.gov.cn/" style="text-decoration: none">冀ICP备20013542号-3</a></p>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

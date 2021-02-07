@@ -99,7 +99,7 @@ public class AdminServiceImpl implements AdminService {
             if (StringUtils.isNotBlank(userInfo.getEmail())) {
 
                 try {
-                    userService.sendCodeForUserRegist(userInfo.getEmail(),
+                    userService.sendEmail(userInfo.getEmail(),
                             "XCloud 用户提醒",
                             userInfo.getNickname(),
                             "因使用违规，您的账号" + userInfo.getUsername() + "已经被XCloud自动移除，XCloud致力于保护您的隐私，您的满意是我们前进的动力。", "https://www.xcloud.show");

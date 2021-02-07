@@ -34,11 +34,11 @@ public interface UserService {
 
     void removeUserInfoOfRegistFailTask();
 
-    void sendCodeForUserRegist(String to,
-                               String title,
-                               String nickname,
-                               String contentOfPage,
-                               String url) throws MessagingException;
+    void sendEmail(String to,
+                   String title,
+                   String nickname,
+                   String contentOfPage,
+                   String url) throws MessagingException;
 
     ServerResponse checkUserInfoExists(User user);
 }

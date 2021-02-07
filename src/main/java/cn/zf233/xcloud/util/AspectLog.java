@@ -13,7 +13,6 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
@@ -25,9 +24,6 @@ import java.util.Arrays;
 public class AspectLog {
 
     private final Logger logger = LoggerFactory.getLogger(AspectLog.class);
-
-    @Resource
-    private RequestCounter requestCounter;
 
     // 切入点描述 这个是controller包的切入点
     @Pointcut("execution(public * cn.zf233.xcloud.web.*.*(..))")
@@ -42,7 +38,7 @@ public class AspectLog {
     @Around("controllerLog()")
     public Object aroundControllerLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        requestCounter.newRequestReceive();
+        RequestCounter.getInstance().newRequestReceive();
         long beforeMillis = System.currentTimeMillis();
 
         // 这个RequestContextHolder是Springmvc提供来获得请求的东西
@@ -98,7 +94,7 @@ public class AspectLog {
 
                 if (serverResponseInfo.isSuccess()) {
 
-                    requestCounter.requestSuccess();
+                    RequestCounter.getInstance().requestSuccess();
 
                     if (userInfo != null) {
 
@@ -108,7 +104,7 @@ public class AspectLog {
                     }
                 } else {
 
-                    requestCounter.requestFailure();
+                    RequestCounter.getInstance().requestFailure();
 
                     if (userInfo != null) {
                         logger.info(" ********XCLOUD SERVICE**** REQUEST SERVICE -------------> " + (userInfo.getId() == null ? userInfo.getUsername() : userInfo.getId()) + " 服务处理失败");

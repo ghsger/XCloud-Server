@@ -5,6 +5,7 @@ package cn.zf233.xcloud.vo;
  */
 public class UserVo {
     private Integer id;
+    private String headUrl;
     private String email;
     private String username;
     private Integer role;
@@ -15,8 +16,9 @@ public class UserVo {
     public UserVo() {
     }
 
-    public UserVo(Integer id, String email, String username, Integer role, Integer useCapacity, Integer level, Integer growthValue) {
+    public UserVo(Integer id, String headUrl, String email, String username, Integer role, Integer useCapacity, Integer level, Integer growthValue) {
         this.id = id;
+        this.headUrl = headUrl;
         this.email = email;
         this.username = username;
         this.role = role;
@@ -31,6 +33,14 @@ public class UserVo {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getHeadUrl() {
+        return headUrl;
+    }
+
+    public void setHeadUrl(String headUrl) {
+        this.headUrl = headUrl;
     }
 
     public String getEmail() {

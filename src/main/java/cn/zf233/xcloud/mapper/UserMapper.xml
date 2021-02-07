@@ -5,6 +5,7 @@
     <resultMap id="BaseResultMap" type="cn.zf233.xcloud.entity.User">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="open_id" jdbcType="VARCHAR" property="openId"/>
+        <result column="head_url" jdbcType="VARCHAR" property="headUrl"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
@@ -19,7 +20,7 @@
     </resultMap>
     <sql id="Base_Column_List">
         id
-        , open_id, email
+        , open_id, head_url, email
         , username, nickname, password, question, answer, role, level, growth_value, create_time,
     update_time
     </sql>
@@ -70,11 +71,11 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
     <insert id="insert" parameterType="cn.zf233.xcloud.entity.User" useGeneratedKeys="true" keyProperty="id">
-        insert into t_user (id, open_id, email, username, nickname,
+        insert into t_user (id, open_id, head_url, email, username, nickname,
                             password, question, answer,
                             role, level, growth_value,
                             create_time, update_time)
-        values (#{id,jdbcType=INTEGER}, #{openId,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{openId,jdbcType=VARCHAR}, #{headUrl,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
                 #{username,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR}, #{question,jdbcType=VARCHAR}, #{answer,jdbcType=VARCHAR},
                 #{role,jdbcType=INTEGER}, #{level,jdbcType=INTEGER}, #{growthValue,jdbcType=INTEGER},
@@ -85,6 +86,9 @@
         <set>
             <if test="openId != null">
                 open_id = #{openId,jdbcType=VARCHAR},
+            </if>
+            <if test="headUrl != null">
+                head_url = #{headUrl,jdbcType=VARCHAR},
             </if>
             <if test="email != null">
                 email = #{email,jdbcType=VARCHAR},

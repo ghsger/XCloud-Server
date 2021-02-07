@@ -29,6 +29,7 @@ public class AdminController {
             session.setAttribute("adminVos", allUserInfo.getData());
             return "admin";
         }
+
         return "admin_login";
     }
 
@@ -54,6 +55,7 @@ public class AdminController {
             session.setAttribute(Const.CURRENT_ADMIN, response.getData());
             return "redirect:/admin";
         }
+
         throw new LoginException(response.getMsg());
     }
 

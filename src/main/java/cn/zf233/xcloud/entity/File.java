@@ -22,6 +22,8 @@ public class File implements Serializable {
 
     private String fileType;
 
+    private Integer classify;
+
     private String remark;
 
     private Long uploadTime;
@@ -31,7 +33,7 @@ public class File implements Serializable {
     public File() {
     }
 
-    public File(Integer id, Integer userId, Integer parentId, Integer folder, String randomFileName, String oldFileName, Long fileSize, String fileType, String remark, Long uploadTime, Long updateTime) {
+    public File(Integer id, Integer userId, Integer parentId, Integer folder, String randomFileName, String oldFileName, Long fileSize, String fileType, Integer classify, String remark, Long uploadTime, Long updateTime) {
         this.id = id;
         this.userId = userId;
         this.parentId = parentId;
@@ -40,9 +42,14 @@ public class File implements Serializable {
         this.oldFileName = oldFileName;
         this.fileSize = fileSize;
         this.fileType = fileType;
+        this.classify = classify;
         this.remark = remark;
         this.uploadTime = uploadTime;
         this.updateTime = updateTime;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     public Integer getId() {
@@ -107,6 +114,14 @@ public class File implements Serializable {
 
     public void setFileType(String fileType) {
         this.fileType = fileType;
+    }
+
+    public Integer getClassify() {
+        return classify;
+    }
+
+    public void setClassify(Integer classify) {
+        this.classify = classify;
     }
 
     public String getRemark() {
